@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  mcserver2:
+    image: itzg/minecraft-server
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    ports:
+      - "25567:25567"
+      - "19134:19134/udp"
+    environment:
+      TYPE: SPIGOT
+      SERVER_PORT: "25567"
+      VERSION: "1.20.4"
+      EULA: "TRUE"
+      MEMORY: 2g
+      MAX_PLAYERS: "4"
+      MODE: survival
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
+      SEED: 
+      PLUGINS: 
+    volumes:
+      # attach the relative directory 'data' to the container's /data path
+      - /home/ulen4/ulenamiserver:/data
