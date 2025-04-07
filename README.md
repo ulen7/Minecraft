@@ -25,18 +25,25 @@ Other important commands
 
     # Create and install docker container (force reinstallation if needed)
     docker compose up -d --force-recreate
+
     # Stop server_name container
     docker stop server_name
+
     # Start server_name container
     docker start server name
+
     # Restart server_name container
     docker restart server name
+
     # Remove server_name container
     docker rm server_name
+
     # List docker containers
     docker ps
+
     # Create network
     docker network create
+
     ...
 
 ## Deployment
