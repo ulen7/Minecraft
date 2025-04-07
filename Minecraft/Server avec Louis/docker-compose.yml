@@ -1,8 +1,9 @@
 version: "3.8"
 
 services:
-  mcserver2:
+  mcserver3:
     image: itzg/minecraft-server
+    container_name: mcserver3
     tty: true
     stdin_open: true
     restart: unless-stopped
