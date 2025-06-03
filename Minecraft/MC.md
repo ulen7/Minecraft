@@ -1,0 +1,32 @@
+## Documentation related to Docker containers with minecraft servers
+
+# How to send commands to the server
+
+In the ubuntu terminal use the following command (changing MC for the server name): 
+            docker exec -i MC rcon-cli
+
+## Server list and ports
+
+Server Familia:
+    Name: mcserver
+    Type: Spigot
+    Version: 1.20.4
+    Port Java: 25565
+    Port Bedrock (Geyser): 19132
+    Seed: 
+
+Server avec Lucas:
+    Name: mcserver2
+    Type: Paper
+    Version: 1.20.4
+    Port Java: 25566
+    Port Bedrock (Geyser): 19133
+    Seed: -3899835130120818196
+
+Server avec Louis:
+    Name: mcserver3
+    Type: Spigot
+    Version: 1.20.4
+    Port Java: 25567
+    Port Bedrock (Geyser): 19134
+    Seed: -645181654588625889
