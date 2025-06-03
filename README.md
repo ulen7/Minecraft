@@ -44,6 +44,12 @@ Other important commands
     # Create network
     docker network create
 
+    # List docker images
+    docker images
+
+    # Remove image
+    docker rmi image_name
+
     ...
 
 ## Deployment
