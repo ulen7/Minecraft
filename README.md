@@ -71,7 +71,7 @@ Examples:
     docker exec -i mc rcon-cli op user
 
 ## Sites of interest
-- To download the mods for the serve:
+- To download the mods for the server:
     https://modrinth.com/
 - Geyser/Floodgate to allow compatibility between Java and Bedrock
     https://geysermc.org/
