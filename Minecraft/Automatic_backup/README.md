@@ -27,7 +27,7 @@ Each world has:
 
 | World Name   | Path to World                               | Backup Path                                 | Google Drive Folder                        |
 |--------------|----------------------------------------------|---------------------------------------------|---------------------------------------------|
-| test_world2  | `/home/ulen4/minecraft_servers/New/test_world2/world` | `/home/ulen4/minecraft_backups/test_world2` | `gdrive:minecraft_backups/test_world2`      |
+| server_name  | `/home/server_name/minecraft_servers/mc_servername` | `/home/server_name/minecraft_backups/mc_servername` | `gdrive:minecraft_backups/mc_servername`      |
 | (Add more...)| ...                                          | ...                                         | ...                                         |
 
 ---
@@ -36,13 +36,88 @@ Each world has:
 
 ### 1. Install `rclone` & Authenticate
 
+NOTE: to properly configure rclone in a headless Ubuntu server, you should already have it installed in a machine with access to a browser (like Windows).
+
+To configure in Windows
+
+### ✅ Easy Installer for Windows
+
+Follow these steps to install `rclone` on Windows:
+
+---
+
+### 1. 📥 Download the rclone Installer
+
+Visit the official site:  
+👉 [https://rclone.org/downloads/](https://rclone.org/downloads/)
+
+Download the version for your system:
+
+- Most users should choose:  
+  **`rclone-v*-windows-amd64.zip`** (for 64-bit systems)
+
+---
+
+### 2. 🗂 Extract the ZIP File
+
+Extract the downloaded ZIP to a folder like:
+
+```
+C:\rclone
+```
+
+Inside you'll find:
+
+- `rclone.exe`
+- `README.txt`
+- Additional files
+
+---
+
+### 3. ⚙️ (Optional) Add rclone to your System PATH
+
+So you can run `rclone` from any terminal window:
+
+1. Press `Windows Key` and search **Environment Variables**
+2. Open **"Edit the system environment variables"**
+3. Click **Environment Variables**
+4. Under **System variables**, find and select `Path`, then click **Edit**
+5. Click **New** and add:
+   ```
+   C:\rclone
+   ```
+6. Click **OK → OK → OK** to save
+
+---
+
+### 4. ✅ Test the Installation
+
+Open **Command Prompt** or **PowerShell** and run:
+
+```bash
+rclone version
+```
+
+You should see version details like:
+
+```
+rclone v1.66.0
+- os/version: windows
+- os/arch: amd64
+...
+```
+
+You're ready to go!
+
+### ✅ Easy Installer for Ubuntu headless
+
 ```bash
 sudo apt install rclone -y
 rclone config
 ```
 
 - Choose `n` for auto config (headless mode)
-- Open URL in local browser, authorize, paste token
+- Follow the instruction to get the token from another authentified machine.
 - Name remote `gdrive`
 
 ---
