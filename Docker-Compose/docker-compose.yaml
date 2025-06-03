@@ -1,0 +1,32 @@
+services:
+# Name of the minecraft server
+  mc_server :
+    image: itzg/minecraft-server
+    # Container name to an easy access
+    container_name: mc_server
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    # This are the standard ports for Java and Bedrock that should be available for the docker container. They can be changed if needed.
+    ports:
+      - "25565:25565"
+      - "19132:19132/udp"
+    environment:
+      TYPE: FABRIC
+      MODRINTH_PROJECTS: |
+        fabric-api
+      # The SERVER_Port should be the same as the one for Java port available for the docker container.
+      SERVER_PORT: "25569"
+      # The version can be changed, but the mods must correspond to the version.
+      VERSION: "1.21.5"
+      EULA: "TRUE"
+      MEMORY: 4g
+      MAX_PLAYERS: "4"
+      MODE: creative
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
+      SEED: '8878586691369573707'
+      PLUGINS:
+    volumes:
+      # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
+      - ./mc_server:/data
