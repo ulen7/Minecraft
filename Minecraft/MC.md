@@ -8,12 +8,12 @@ In the ubuntu terminal use the following command (changing MC for the server nam
 ## Server list and ports
 
 Server Familia:
-    \Name: mcserver
-    \Type: Spigot
-    \Version: 1.20.4
-    \Port Java: 25565
-    \Port Bedrock (Geyser): 19132
-    \Seed: 
+    Name: mcserver
+    Type: Spigot
+    Version: 1.20.4
+    Port Java: 25565
+    Port Bedrock (Geyser): 19132
+    Seed:
 
 Server avec Lucas:
     Name: mcserver2
