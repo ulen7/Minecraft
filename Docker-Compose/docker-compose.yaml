@@ -30,3 +30,5 @@ services:
     volumes:
       # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
       - ./mc_server:/data
+      #Necessary especially to have different servers and the same mods
+      #- ./mods:/data/mods
