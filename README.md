@@ -56,9 +56,9 @@ Other important commands
 
 All the docker-compose files are being deployed with docker compose in a Ubuntu server machine.
 
-The Type of servers is Spigot, Paper and now Fabric too.
+The Type of servers is Fabric mainly, I started with spigot but migrated all the servers to Fabric now.
 
-Portainer is recommended to access the console of the server.
+Portainer is recommended to access the console of the server and to easly view the logs.
 
 ## Send commands to server console
 
@@ -70,10 +70,12 @@ Examples:
 
     docker exec -i mc rcon-cli op user
 
-## Acknowledgments
-
-  - Hat tip to anyone whose code is used
-  - Inspiration
-  - etc
-
 ## Sites of interest
+- To download the mods for the serve:
+    https://modrinth.com/
+- Geyser/Floodgate to allow compatibility between Java and Bedrock
+    https://geysermc.org/
+- Complementary Shaders to have a more beutiful minecraft (subjective)
+    https://www.complementary.dev/shaders/
+- Several Resource packs
+    https://www.curseforge.com/minecraft/search?class=texture-packs
