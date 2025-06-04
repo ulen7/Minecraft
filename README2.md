@@ -2,11 +2,13 @@
 
 This repository contains all files and documentation related to running personal Minecraft servers using Docker. It includes Docker Compose configurations, setup guides for running Minecraft on a Linux machine, and instructions for managing server containers and interacting with the server console.
 
+
+
 ---
 
 ## 🚀 Getting Started
 
-These instructions will help you set up the project on a Linux machine (in my case Ubuntu Headless) for development or personal gameplay. See the [Deployment](#deployment) section for live server notes.
+These instructions will help you set up the project on a Linux machine (in my case Ubuntu Headless) for development or personal gameplay.
 
 ### 🐳 Installing Docker and Docker Compose on Linux
 
@@ -59,12 +61,12 @@ docker ps
 docker network create my_network
 ```
 
-# List available Docker images
+#### List available Docker images
 ```
 docker images
 ```
 
-# Remove a specific image
+#### Remove a specific image
 ```
 docker rmi image_name
 ```
@@ -79,7 +81,7 @@ Portainer is recommended for:
 - Accessing the Minecraft server console
 - Viewing container logs easily through a UI
 
-🎮 Sending Commands to the Server Console
+### 🎮 Sending Commands to the Server Console
 From the host machine, you can interact with the Minecraft server inside Docker using:
 
 ```
