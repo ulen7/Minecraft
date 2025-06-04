@@ -1,9 +1,9 @@
 services:
 # Name of the minecraft server
-  mc_server :
+  mc_nameserver :
     image: itzg/minecraft-server
     # Container name to an easy access
-    container_name: mc_server
+    container_name: mc_nameserver
     tty: true
     stdin_open: true
     restart: unless-stopped
@@ -29,6 +29,6 @@ services:
       PLUGINS:
     volumes:
       # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
-      - ./mc_server:/data
+      - ./mc_servername:/data
       #Necessary especially to have different servers and the same mods
       #- ./mods:/data/mods
