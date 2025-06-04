@@ -249,11 +249,14 @@ done
 ---
 
 
-### Test
+### 🧪 Manual Test
+
+While in the directory of the bash file
 
 ```bash
-/home/server_name/scripts/backup_mc_servername.sh
+./backup_<mc_servername>.sh
 ```
+
 
 Check backups:
 - Local: `/home/server_name/minecraft_backups/test_world2`
@@ -362,6 +365,6 @@ You can check this log to confirm backups ran successfully.
 
 ---
 
-# Now you should be all set with your back-ups
+### Now you should be all set with your back-ups
 
 
