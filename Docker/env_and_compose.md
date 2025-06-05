@@ -12,18 +12,15 @@ A `.env` file lets you define key-value pairs that can be referenced inside your
 
 ```env
 # Minecraft server settings
-SERVER_NAME=minecraft_fabric
-VERSION=1.20.1
-PORT=25565
+MC_SERVER_NAME=mc_servername
+VERSION=1.25.1
+JPORT=25565
+BPORT=19132
 
 # Paths (mounted from host)
-WORLD_PATH=/home/ulen4/minecraft_servers/${SERVER_NAME}/world
-MODS_PATH=/home/ulen4/minecraft_servers/${SERVER_NAME}/mods
-CONFIG_PATH=/home/ulen4/minecraft_servers/${SERVER_NAME}/config
+WORLD_PATH=/home/server_name/minecraft_servers/${MC_SERVER_NAME}
 
-# EULA (must be true to run)
-EULA=true
 
 # Memory limits
 MEM_MIN=1G
-MEM_MAX=3G
+MEM_MAX=4G
