@@ -14,7 +14,9 @@ A `.env` file lets you define key-value pairs that can be referenced inside your
 # Docker container settings
 MC_SERVER_NAME=mc_servername
 VERSION=1.25.1
+# Port for Minecraft java
 JPORT=25565
+# Port for Minecraft bedrock
 BPORT=19132
 
 # Minecraft server properties
