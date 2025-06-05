@@ -1,5 +1,13 @@
 # Minecraft Server Setup with Docker, Mods, Remote Access & Backups
 
+![Project Status](https://img.shields.io/badge/status-learning-informational)
+![Docker](https://img.shields.io/badge/docker-ready-blue?logo=docker)
+![Fabric](https://img.shields.io/badge/mod-loader-fabric-blueviolet)
+![Backups](https://img.shields.io/badge/backup-automated-success)
+![Remote Access](https://img.shields.io/badge/remote%20access-tailscale-blue?logo=tailscale)
+![Last Updated](https://img.shields.io/github/last-commit/ulen7/Minecraft_Ulen)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 Welcome to my Minecraft server setup project! I started this as a way to host a fun and safe server for my kid, and along the way, I took it as an opportunity to learn and improve my skills in Docker, Linux, modding, automation, and remote networking.
 
 This repo documents the full journey — from a basic server to a more advanced setup with Fabric mods, automated backups, and remote access using Tailscale.
