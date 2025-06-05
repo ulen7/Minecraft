@@ -116,6 +116,10 @@ docker compose up -d
 ```
 docker system prune -a
 ```
+
+---
+
+
 ## 📁 Files in This Folder
 
 | File | Description                               |
@@ -124,7 +128,7 @@ docker system prune -a
 | server.properties |Minecraft server configuration            |
 | notes.md | Additional notes or to-do items                   |
 
-
+---
 
 ## 💡 Tips
 
@@ -132,3 +136,7 @@ docker system prune -a
 - ⚙️ Use .env files to customize ports, version, and variables
 - 💾 Use volumes in docker-compose.yml to persist world data
 
+---
+
+## Important links
+- 🐳 Docker documentation https://docs.docker.com/manuals/
