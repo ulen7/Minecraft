@@ -1,24 +1,3 @@
-version: "3.8"
-
-services:
-  minecraft:
-    image: itzg/minecraft-server:java17
-    container_name: ${SERVER_NAME}
-    restart: unless-stopped
-    ports:
-      - "${PORT}:25565"
-    environment:
-      EULA: ${EULA}
-      VERSION: ${VERSION}
-      TYPE: FABRIC
-      MEMORY: "${MEM_MIN} ${MEM_MAX}"
-    volumes:
-      - ${WORLD_PATH}:/data/world
-      - ${MODS_PATH}:/data/mods
-      - ${CONFIG_PATH}:/data/config
-    tty: true
-    stdin_open: true
-
 services:
 # Name of the minecraft server
   ${SERVER_NAME} :
