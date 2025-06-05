@@ -58,6 +58,7 @@ Navigate to the project folder and run:
 ```
 docker compose up -d
 ```
+⚠️Important : Follow the steps here to use docker as non-root user if needed : https://docs.docker.com/engine/install/linux-postinstall/
 
 To stop the server:
 ```
