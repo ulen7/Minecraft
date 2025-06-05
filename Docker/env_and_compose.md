@@ -11,16 +11,20 @@ A `.env` file lets you define key-value pairs that can be referenced inside your
 **Example `.env` file:**
 
 ```env
-# Minecraft server settings
+# Docker container settings
 MC_SERVER_NAME=mc_servername
 VERSION=1.25.1
 JPORT=25565
 BPORT=19132
 
-# Paths (mounted from host)
-WORLD_PATH=/home/server_name/minecraft_servers/${MC_SERVER_NAME}
-
-
+# Minecraft server properties
+SEED=
 # Memory limits
 MEM_MIN=1G
 MEM_MAX=4G
+MODE=survival
+
+# Paths (mounted from host)
+DATA_PATH=/home/server_name/minecraft_servers/${MC_SERVER_NAME}
+
+
