@@ -18,3 +18,38 @@ services:
       - ${CONFIG_PATH}:/data/config
     tty: true
     stdin_open: true
+
+services:
+# Name of the minecraft server
+  ${SERVER_NAME} :
+    image: itzg/minecraft-server
+    # Container name to an easy access
+    container_name: ${SERVER_NAME}
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    # This are the standard ports for Java and Bedrock that should be available for the docker container. They can be changed if needed.
+    ports:
+      - "${JPORT}:${JPORT}"
+      - "${JPORT}:${JPORT}/udp"
+    environment:
+      TYPE: FABRIC
+      MODRINTH_PROJECTS: |
+        fabric-api
+      # The SERVER_Port should be the same as the one for Java port available for the docker container.
+      SERVER_PORT: "${JPORT}"
+      # The version can be changed, but the mods must correspond to the version.
+      VERSION: "${VERSION}"
+      EULA: "TRUE"
+      MEMORY: "${MEM_MIN} ${MEM_MAX}"
+      MAX_PLAYERS: "4"
+      MODE: ${MODE}
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
+      SEED: '${SEED}'
+      PLUGINS:
+    volumes:
+      # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
+      - ${DATA_PATH}:/data
+      #Necessary especially to have different servers and the same mods
+      #- ./mods:/data/mods
