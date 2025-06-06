@@ -27,11 +27,11 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 
 | Folder | Description |
 |--------|-------------|
-| [`docker/`](./docker) | Docker Compose setup to run the server. Includes config files and notes. |
-| [`mods/`](./mods) | Guides on adding Fabric mods, example mod list, and tips. |
-| [`tailscale/`](./tailscale) | Setup guide for remote access via Tailscale VPN. |
-| [`backups/`](./backups) | Scripts and configuration for automatic backups with Google Drive using `rclone`. |
-| [`troubleshooting/`](./troubleshooting) | Notes on common issues and fixes I’ve encountered. |
+| [`Docker/`](./Docker) | Docker Compose setup to run the server. Includes config files and notes. |
+| [`Mods/`](./Mods) | Guides on adding Fabric mods, example mod list, and tips. |
+| [`Tailscale/`](./Tailscale) | Setup guide for remote access via Tailscale VPN. |
+| [`Backups/`](./Backups) | Scripts and configuration for automatic backups with Google Drive using `rclone`. |
+| [`Troubleshooting/`](./Troubleshooting) | Notes on common issues and fixes I’ve encountered. |
 
 ---
 
