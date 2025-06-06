@@ -69,7 +69,7 @@ The [`docker-compose.yaml`](./docker-compose.yaml) file in this repo serves as a
 
 ### ⚙️ Step 5: Configure Your Server (`.env` file)
 
-Before you launch the server, you need to modify the configuration file `.env` in the same directory as your `docker-compose.yml`. You can use the template [`.env`](./.env) and guide you with [`.Env_configuration`](./.Env_configuration.md)  in this repository as a guide. This file stores all your custom settings for both the container and the minecraft servers, like ports to use, the gamemode, seed, among others.
+Before you launch the server, you need to modify the configuration file `.env` in the same directory as your `docker-compose.yml`. You can use the template [`.env`](./.env) and guide you with [`.Env_configuration`](./.Env_configuration.md)  in this repository. This file stores all your custom settings for both the container and the minecraft servers, like ports to use, the gamemode, seed, among others.
 
 ---
 
