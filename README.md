@@ -10,9 +10,9 @@
 
 Welcome to my Minecraft server setup project! I started this as a way to host a fun and safe server for my kid, and along the way, I took it as an opportunity to learn and improve my skills in Docker, Linux, modding, automation, and remote networking.
 
-This repo documents the full journey — from a basic server to a more advanced setup with Fabric mods, automated backups, and remote access using Tailscale.
+This repository documents my journey in setting up a personal, modded Minecraft server for my family. What started as a simple server has become a fun learning project involving **Docker**, **Fabric mods**, **Tailscale** for remote access, and **automated backups** to Google Drive.
 
-I’m still improving and tweaking things, and I’ve structured everything so it’s easy to follow and build on. Eventually, I plan to share this on the community for feedback and to help others.
+My goal is to continuously improve this setup, learn as I go, and create a comprehensive guide for others who might want to do the same.
 
 ---
 ### ✨ Core Features
