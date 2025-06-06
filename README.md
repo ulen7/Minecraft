@@ -23,7 +23,7 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 * **Automated Backups:** Nightly backups of the world data are automatically created and uploaded to Google Drive, so we never lose our progress.
 ---
 
-## 🗂 Folder Structure
+### 🗂 Folder Structure
 
 | Folder | Description |
 |--------|-------------|
@@ -35,7 +35,7 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 
 ---
 
-## 💡 Goals
+### 💡 Goals
 
 - 🧠 Learn by doing (Docker, automation, modding)
 - ⚙️ Build a stable Minecraft server setup for my kid
@@ -45,25 +45,18 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 
 ---
 
-## ✅ Features
-
-- Fabric mod support via Docker
-- Remote access using Tailscale
-- Automated weekly backups uploaded to Google Drive
-- Clean folder structure for easy maintenance and learning
-
----
-
-## ⚠️ Disclaimer
+### ⚠️ Disclaimer
 
 I'm not an expert — this is a personal learning project. Use this repo at your own risk and feel free to fork or adapt it to your own needs.
 
 ---
 
-## 📬 Future Plans
+### 💡 Future Plans
 
-- Add auto mod version updates (work in progress)
-- Add testing environments
-- Improve the automation aspect to create new servers
+This project is always evolving. Here are some things I'm thinking about next:
+
+- [ ] Exploring more performance-enhancing mods.
+- [ ] Setting up a server monitoring dashboard (e.g., with Grafana).
+- [ ] Create a one-click script to install everything easier for begginers.
 
 ---
