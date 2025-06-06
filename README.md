@@ -15,6 +15,13 @@ This repo documents the full journey — from a basic server to a more advanced 
 I’m still improving and tweaking things, and I’ve structured everything so it’s easy to follow and build on. Eventually, I plan to share this on the community for feedback and to help others.
 
 ---
+### ✨ Core Features
+
+* **Containerized with Docker:** Easy to manage, deploy, and replicate the server environment.
+* **Modded with Fabric:** Running a lightweight, moddable server version.
+* **Secure Remote Access:** Using [Tailscale](https://tailscale.com/) to create a secure network for remote play.
+* **Automated Backups:** Nightly backups of the world data are automatically created and uploaded to Google Drive, so we never lose our progress.
+---
 
 ## 🗂 Folder Structure
 
