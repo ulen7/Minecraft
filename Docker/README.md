@@ -57,7 +57,8 @@ sudo apt install docker-compose
 
 The `docker-compose.yml` file is the recipe for your server. Here’s a quick breakdown of the important parts:
 
-* **`variables`**: The **docker-compose** file in this repo takes all the most important variables from the `.env` configuration file.
+* **`environment`**: The **docker-compose** file reads the variables from the .env configuration file section to load all the information it needs. This is not mandatory, you can have all those variables inputed manually in the docker-compose file.
+environment: The docker-compose file reads this section to load all the important variables from the .env configuration file.
 * **`image: itzg/minecraft-server`**: This tells Docker what image to use.
 * **`ports`**: This maps the server's port inside the container to a port on your host machine, allowing players to connect.
 * **`volumes`**: This is the most critical part for data safety. It links a folder on your server (e.g., `./minecraft-data`) to a folder inside the container. This means your world, and configs are saved on your machine, not just inside the temporary container.
@@ -68,7 +69,7 @@ The [`docker-compose.yaml`](./docker-compose.yaml) file in this repo serves as a
 
 ### ⚙️ Step 5: Configure Your Server (`.env` file)
 
-Before you launch the server, you need to modify the configuration file named `config.env` in the same directory as your `docker-compose.yml`. You can use the template [`.env`](./.env) in this repository as a guide. This file stores all your custom settings for both the container and the minecraft servers, like ports to use, the gamemode, seed, among others.
+Before you launch the server, you need to modify the configuration file `.env` in the same directory as your `docker-compose.yml`. You can use the template [`.env`](./.env) and guide you with [`.Env_configuration`](./.Env_configuration.md)  in this repository as a guide. This file stores all your custom settings for both the container and the minecraft servers, like ports to use, the gamemode, seed, among others.
 
 ---
 
