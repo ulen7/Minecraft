@@ -51,13 +51,35 @@ sudo apt install docker-compose
 
 ---
 
-### 🚀 Running the Server
+---
 
-Navigate to the project folder and run:
+### 📄 Step 4 Understanding the `docker-compose.yml`
+
+The `docker-compose.yml` file is the recipe for your server. Here’s a quick breakdown of the important parts:
+
+* **`variables`**: The **docker-compose** file in this repo takes all the most important variables from the `.env` configuration file.
+* **`image: itzg/minecraft-server`**: This tells Docker what image to use.
+* **`ports`**: This maps the server's port inside the container to a port on your host machine, allowing players to connect.
+* **`volumes`**: This is the most critical part for data safety. It links a folder on your server (e.g., `./minecraft-data`) to a folder inside the container. This means your world, and configs are saved on your machine, not just inside the temporary container.
+
+The [`docker-compose.yaml`](./docker-compose.yaml) file in this repo serves as a template that has all the necesary configuration that  I wanted. It should serve for most modded servers, one important note is that I share all the mods across my minecraft server so I have all the **docker-compose** files linked with the same **mods** folder to update all of them at the same time. I get all my mods from **[`Modrinth`](https://modrinth.com/)**
+
+---
+
+### ⚙️ Step 5: Configure Your Server (`.env` file)
+
+Before you launch the server, you need to modify the configuration file named `config.env` in the same directory as your `docker-compose.yml`. You can use the template [`.env`](./.env) in this repository as a guide. This file stores all your custom settings for both the container and the minecraft servers, like ports to use, the gamemode, seed, among others.
+
+---
+
+## Step 6: 🚀 Running the Server
+
+Now everything should be ready. Navigate to the project folder and run:
 
 ```
 docker compose up -d
 ```
+
 ⚠️Important : Follow the steps here to use docker as non-root user if needed : https://docs.docker.com/engine/install/linux-postinstall/
 
 To stop the server:
@@ -140,3 +162,4 @@ docker system prune -a
 
 ## Important links
 - 🐳 Docker documentation https://docs.docker.com/manuals/
+- Mondrinth mods https://modrinth.com/
