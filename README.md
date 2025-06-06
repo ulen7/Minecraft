@@ -60,3 +60,7 @@ This project is always evolving. Here are some things I'm thinking about next:
 - [ ] Create a one-click script to install everything easier for begginers.
 
 ---
+
+### 🤝 Contributing
+
+This is a personal project, but I'm open to suggestions and improvements! If you have an idea, feel free to fork the repository and submit a pull request.
