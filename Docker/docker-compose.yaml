@@ -1,6 +1,6 @@
 services:
 # Name of the minecraft server
-  ${SERVER_NAME} :
+  minecraft :
     image: itzg/minecraft-server
     # Container name to an easy access
     container_name: ${SERVER_NAME}
@@ -20,15 +20,14 @@ services:
       # The version can be changed, but the mods must correspond to the version.
       VERSION: "${VERSION}"
       EULA: "TRUE"
-      MEMORY: "${MEM_MIN} ${MEM_MAX}"
+      MEMORY: "${MEMORY}"
       MAX_PLAYERS: "4"
-      MODE: ${MODE}
+      MODE: ${GAMEMODE}
       PVP: "false"
       RESOURCE_PACK_ENFORCE: "TRUE"
       SEED: '${SEED}'
-      PLUGINS:
     volumes:
       # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
       - ${DATA_PATH}:/data
       #Necessary especially to have different servers and the same mods
-      #- ./mods:/data/mods
+      - ${MODS_PATH}:/data/mods
