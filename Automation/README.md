@@ -369,9 +369,6 @@ If you're unsure your `cron` schedule is correct, you can test it online using t
 - 🧮 **[Crontab Guru](https://crontab.guru/)**  
   Simple and user-friendly — perfect for quick checks.
 
-- 🛠 **[CronTool by Cronhub](https://crontool.dev/)**  
-  More detailed with timezone selection and human-readable output.
-
 ---
 
 ### Now you should be all set with your back-ups
