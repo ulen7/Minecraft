@@ -91,7 +91,7 @@ So you can run `rclone` from any terminal window:
 
 ---
 
-#### 1.1.4 ✅ Test the Installation
+#### 1.1.4 ✅  the Installation
 
 Open **Command Prompt** or **PowerShell** and run:
 
@@ -254,7 +254,7 @@ While in the directory of the bash file
 
 
 Check backups:
-- Local: `/home/server_name/minecraft_backups/test_world2`
+- Local: `/home/server_name/minecraft_backups/mc_servername`
 - Drive: `gdrive:minecraft_backups/mc_servername`
 
 ---
@@ -284,7 +284,7 @@ If it's your first time using `crontab`, it may ask you to choose an editor (nan
 At the bottom of the file, add the following line:
 
 ```cron
-0 3 * * 0 TZ=America/Toronto /home/ulen4/scripts/backup_test_world2.sh >> /home/ulen4/scripts/backup.log 2>&1
+0 3 * * 0 TZ=America/Toronto /home/ulen4/scripts/mc_backup.sh >> /home/ulen4/scripts/backup.log 2>&1
 ```
 
 ---
@@ -318,7 +318,7 @@ Ensures the task runs using the **America/Toronto timezone**, which is helpful i
 ##### 🛠 Script Path
 
 ```bash
-/home/server_name/scripts/backup_test_world2.sh
+/home/server_name/scripts/mc_backup.sh
 ```
 
 Points to the shell script that handles:
@@ -328,7 +328,7 @@ Points to the shell script that handles:
 
 > 🔒 Ensure the script has execute permissions:
 ```bash
-chmod +x /home/server_name/scripts/backup_test_world2.sh
+chmod +x /home/server_name/scripts/mc_backup.sh
 ```
 
 ---
@@ -355,7 +355,7 @@ You can check this log to confirm backups ran successfully.
 
 
 ```cron
-0 3 * * 0 TZ=America/Toronto /home/server_name/scripts/backup_test_world2.sh >> /home/server_name/scripts/backup_mc_servername.log 2>&1
+0 3 * * 0 TZ=America/Toronto /home/server_name/scripts/mc_backup.sh >> /home/server_name/scripts/mc_backup.log 2>&1
 ```
 
 ---
