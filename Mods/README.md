@@ -21,6 +21,7 @@ It also covers the configuration for **Geyser** and **Floodgate** to support Bed
 
 Put your mods (e.g., `sodium.jar`, `geyser-fabric.jar`) in the following folder on your **server**:
 
+> **/home/server_name/minecraft_servers/mc_servername/mods/**
 
 Make sure all mods are compatible with:
 - The server’s **Minecraft version**
@@ -89,34 +90,6 @@ Make sure all mods are compatible with:
 
 ---
 
-### 🎨 Resource Packs
-
-Resource packs are only needed **on the client**.
-
-To install:
-1. Launch Minecraft.
-2. Click **Options → Resource Packs → Open Pack Folder**.
-3. Place the `.zip` file there.
-4. Activate it in-game.
-
-> Server-side resource pack linking is also possible via the `server.properties` file (see `resource-pack=` and `resource-pack-sha1=`).
-
----
-
-### 🌅 Shaders
-
-Shaders are also **client-side only**.
-
-To install:
-1. Install **Iris** or **OptiFine** on your client.
-2. Launch the game and go to **Video Settings → Shader Packs → Open Shaderpacks Folder**.
-3. Drop the shader `.zip` inside.
-4. Enable in-game.
-
-Popular shaders include **Complementary**, **BSL**, and **Sildur’s Vibrant**.
-
----
-
 ## 🌉 Geyser & Floodgate Setup (Bedrock Support)
 
 Geyser and Floodgate allow **Bedrock Edition** players to join a **Java server** — no extra server needed.
@@ -136,7 +109,7 @@ Copy the following `.jar` files into your server's `mods/` folder:
 Start your server once to auto-generate the Geyser and Floodgate config files inside:
 
 ```
-/home/<your_user>/minecraft_servers/<server_folder>/config/
+/home/serve_name/minecraft_servers/mc_servername/config/
 ```
 
 You should see:
