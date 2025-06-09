@@ -33,11 +33,6 @@ Each world has:
 - A target directory for world data
 - Its own cron schedule
 
-| World Name   | Path to World                               | Backup Path                                 | Google Drive Folder                        |
-|--------------|----------------------------------------------|---------------------------------------------|---------------------------------------------|
-| server_name  | `/home/server_name/minecraft_servers/mc_servername` | `/home/server_name/minecraft_backups/mc_servername` | `gdrive:minecraft_backups/mc_servername`      |
-| (Add more...)| ...                                          | ...                                         | ...                                         |
-
 ---
 
 ## 🚀 Setup
@@ -220,8 +215,8 @@ rclone copy ~/test.txt gdrive:/my-folder
 
 # === Configuration ===
 WORLD_NAME="mc_servername"
-WORLD_DIR="/home/ulen4/minecraft_servers/New/$WORLD_NAME/world"
-BACKUP_DIR="/home/ulen4/minecraft_backups/$WORLD_NAME"
+WORLD_DIR="/home/server_name/minecraft_servers/New/$WORLD_NAME"
+BACKUP_DIR="/home/server_name/minecraft_backups/$WORLD_NAME"
 TIMESTAMP=$(date +'%Y-%m-%d')
 BACKUP_NAME="${WORLD_NAME}_$TIMESTAMP.tar.gz"
 REMOTE_NAME="gdrive"
