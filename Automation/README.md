@@ -1,10 +1,12 @@
-# 🧰 Minecraft Server Backup System Automation
+# 🧰 Minecraft Server Backup Automation
 
 ![Backup Status](https://img.shields.io/badge/backups-automated-brightgreen)
 ![Sync](https://img.shields.io/badge/google--drive-synced-blue)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-Automated weekly backups for Minecraft Fabric servers running in Docker. Supports multiple worlds, backup rotation, and Google Drive uploads via `rclone`.
+Automated weekly backups for Minecraft Fabric servers running in Docker.
+
+Supports multiple worlds, backup rotation, and Google Drive syncing via [`rclone`](https://rclone.org/).
 
 ---
 
