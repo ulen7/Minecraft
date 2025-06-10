@@ -81,12 +81,12 @@ docker compose build
 If you’re stuck:
 
 - Search in logs for keywords like:
-error, exception, failed, missing, permission, bind
+   - error, exception, failed, missing, permission, bind
 
 - Check version mismatches in:
- - mods/
- - docker-compose.yml
- - config/
+   - mods/
+   - docker-compose.yml
+   - config/
 
 Review crash reports in:
 
