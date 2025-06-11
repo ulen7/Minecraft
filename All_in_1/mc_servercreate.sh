@@ -87,7 +87,7 @@ done
 
 # === Geyser/Floodgate ===
 while true; do
-  read -p "🌉 Do you want to enable Geyser/Floodgate support? (y/n, default: ${DEFAULT_USE_GEYSER}): " USE_GEYSER
+  read -p "🌉 Do you want to enable Geyser/Floodgate support? (yes/no, default: ${DEFAULT_USE_GEYSER}): " USE_GEYSER
   USE_GEYSER="${USE_GEYSER:-$DEFAULT_USE_GEYSER}"
 
   case "$USE_GEYSER" in
