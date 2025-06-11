@@ -18,7 +18,7 @@ DEFAULT_Seed=""
 # === 1. Intro & User Prompts ===
 # Greeting:
 echo "📝 Let's configure your Minecraft server..."
-echo "You can left blank by just pressing enter"
+echo "You can use the default option by just pressing enter"
 
 # === Server Name  ===
 while true; do
