@@ -19,26 +19,116 @@ DEFAULT_Seed=""
 # Greeting:
 echo "📝 Let's configure your Minecraft server..."
 echo "You can left blank by just pressing enter"
-# - Server name
-read -p "📛 Please enter a name for your server. If left blank, '${DEFAULT_SERVER_NAME}' will be used: " SERVER_NAME
-SERVER_NAME="${SERVER_NAME:-$DEFAULT_SERVER_NAME}"
 
-# - Minecraft version
-read -p "🎮 Enter the Minecraft version to use (e.g., 1.20.4). Default is '${DEFAULT_MC_VERSION}': " MC_VERSION
-MC_VERSION="${MC_VERSION:-$DEFAULT_MC_VERSION}"
+# === Server Name  ===
+while true; do
+  read -p "📛 Please enter a name for your server (letters, numbers, underscores, dashes). Leave blank for '${DEFAULT_SERVER_NAME}': " SERVER_NAME
+  SERVER_NAME="${SERVER_NAME:-$DEFAULT_SERVER_NAME}"
 
-# - Server type (Fabric, Paper, etc.)
+  if [[ "$SERVER_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+    break
+  else
+    echo "❌ Invalid server name. Please use only letters, numbers, underscores, or dashes."
+  fi
+done
+
+# === Minecraft Version ===
+while true; do
+  read -p "🧱 Enter the Minecraft version (e.g., 1.20.4). Leave blank for default '${DEFAULT_MC_VERSION}': " MC_VERSION
+  MC_VERSION="${MC_VERSION:-$DEFAULT_MC_VERSION}"
+
+  if [[ "$MC_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+    break
+  else
+    echo "❌ Invalid version format. Use format like '1.20.4' or '1.21'."
+  fi
+done
+
+# === Server Type  ===
+echo "🛠️ Select the type of Minecraft server to deploy:"
+PS3="➡️ Choose 1–4 (default: ${DEFAULT_SERVER_TYPE}): "
+options=("vanilla" "fabric" "spigot" "paper")
+
+select opt in "${options[@]}"; do
+  if [[ -z "$opt" ]]; then
+    SERVER_TYPE="$DEFAULT_SERVER_TYPE"
+    echo "ℹ️ Defaulting to: $SERVER_TYPE"
+    break
+  elif [[ " ${options[*]} " == *" $opt "* ]]; then
+    SERVER_TYPE="$opt"
+    break
+  else
+    echo "❌ Invalid option. Please choose a number between 1 and 4."
+  fi
+done
+
 # - Memory allocation
-# - Ports
-read -p "🌐 Enter the port number for the Java server. Default is '${DEFAULT_JPORT}': " MC_JPORT
-MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
 
-# - Whether to use Geyser/Floodgate
+# === Ports ===
+while true; do
+  read -p "🌐 Enter the port number for the server (1024–65535). Default is '${DEFAULT_PORT}': " MC_PORT
+  MC_PORT="${MC_PORT:-$DEFAULT_PORT}"
 
+  if [[ "$MC_PORT" =~ ^[0-9]+$ ]] && [ "$MC_PORT" -ge 1024 ] && [ "$MC_PORT" -le 65535 ]; then
+    break
+  else
+    echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+  fi
+done
+
+# === Geyser/Floodgate ===
+while true; do
+  read -p "🌉 Do you want to enable Geyser/Floodgate support? (y/n, default: ${DEFAULT_USE_GEYSER}): " USE_GEYSER
+  USE_GEYSER="${USE_GEYSER:-$DEFAULT_USE_GEYSER}"
+
+  case "$USE_GEYSER" in
+    [yY]|[yY][eE][sS])
+      USE_GEYSER="yes"
+      break
+      ;;
+    [nN]|[nN][oO])
+      USE_GEYSER="no"
+      break
+      ;;
+    *)
+      echo "❌ Please enter 'y' or 'n'."
+      ;;
+  esac
+done
 
 # - Enable rclone backups
 # - Enable Tailscale
 # (Use default values if inputs are blank)
+
+# === Configuration Summary ===
+echo ""
+echo "📋 Configuration Summary:"
+echo "-----------------------------"
+echo "📁 Server Name      : $SERVER_NAME"
+echo "📂 Deployment Folder: $FOLDER_BASE/$SERVER_NAME"
+echo "🧱 Minecraft Version: $MC_VERSION"
+echo "🛠 Server Type      : $SERVER_TYPE"
+echo "🌉 Geyser/Floodgate : $USE_GEYSER"
+echo "📦 Server Port      : $SERVER_PORT"
+echo "-----------------------------"
+
+# Ask for confirmation
+while true; do
+  read -p "✅ Proceed with this configuration? (yes/no): " CONFIRM
+  case "$CONFIRM" in
+    [yY]|[yY][eE][sS])
+      echo "🚀 Starting setup..."
+      break
+      ;;
+    [nN]|[nN][oO])
+      echo "❌ Setup cancelled by user."
+      exit 1
+      ;;
+    *)
+      echo "❌ Please enter 'yes' or 'no'."
+      ;;
+  esac
+done
 
 # === 2. Directory Setup ===
 # Create folders:
