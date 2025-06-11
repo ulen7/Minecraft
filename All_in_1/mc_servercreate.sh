@@ -2,15 +2,40 @@
 
 # === 0. Constants & Defaults ===
 # Default values and path setups
+DEFAULT_SERVER_NAME="mc_server"
+DEFAULT_VERSION="1.21.5"
+DEFAULT_SERVER_TYPE="fabric"
+DEFAULT_MEMORY="4G"
+DEFAULT_JPORT="25565"
+DEFAULT_BPORT="19132"
+DEFAULT_FOLDER_BASE="$HOME/minecraft_servers"
+DEFAULT_IMAGE="itzg/minecraft-server"
+DEFAULT_USE_GEYSER="no"
+DEFAULT_ENABLE_BACKUPS="no"
+DEFAULT_ENABLE_TAILSCALE="no"
+DEFAULT_Seed=""
 
 # === 1. Intro & User Prompts ===
-# Greet the user and prompt for:
+# Greeting:
+echo "📝 Let's configure your Minecraft server..."
+echo "You can left blank by just pressing enter"
 # - Server name
+read -p "📛 Please enter a name for your server. If left blank, '${DEFAULT_SERVER_NAME}' will be used: " SERVER_NAME
+SERVER_NAME="${SERVER_NAME:-$DEFAULT_SERVER_NAME}"
+
 # - Minecraft version
+read -p "🎮 Enter the Minecraft version to use (e.g., 1.20.4). Default is '${DEFAULT_MC_VERSION}': " MC_VERSION
+MC_VERSION="${MC_VERSION:-$DEFAULT_MC_VERSION}"
+
 # - Server type (Fabric, Paper, etc.)
 # - Memory allocation
 # - Ports
+read -p "🌐 Enter the port number for the Java server. Default is '${DEFAULT_JPORT}': " MC_JPORT
+MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
+
 # - Whether to use Geyser/Floodgate
+
+
 # - Enable rclone backups
 # - Enable Tailscale
 # (Use default values if inputs are blank)
