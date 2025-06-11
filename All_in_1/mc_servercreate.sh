@@ -62,7 +62,16 @@ select opt in "${options[@]}"; do
   fi
 done
 
-# - Memory allocation
+# ===  Memory Allocation ===
+while true; do
+  read -p "🧠 How much memory (in GB) should be allocated to the server? (2-32) [Default: $DEFAULT_MEMORY]: " MEMORY_ALLOCATION
+  MEMORY_ALLOCATION="${MEMORY_ALLOCATION:-$DEFAULT_MEMORY}"
+  if [[ "$MEMORY_ALLOCATION" =~ ^[0-9]+$ ]] && (( MEMORY_ALLOCATION >= 2 && MEMORY_ALLOCATION <= 32 )); then
+    break
+  else
+    echo "❌ Please enter a number between 2 and 32."
+  fi
+done
 
 # === Ports ===
 while true; do
@@ -96,20 +105,43 @@ while true; do
   esac
 done
 
-# - Enable rclone backups
-# - Enable Tailscale
-# (Use default values if inputs are blank)
+# === Automatic Backups ===
+while true; do
+  read -p "☁️  Enable Google Drive backups using rclone? (yes/no) [Default: $DEFAULT_ENABLE_RCLONE]: " ENABLE_RCLONE
+  ENABLE_RCLONE="${ENABLE_RCLONE,,}"  # lowercase input
+  ENABLE_RCLONE="${ENABLE_RCLONE:-$DEFAULT_ENABLE_RCLONE}"
+  if [[ "$ENABLE_RCLONE" =~ ^(yes|no)$ ]]; then
+    break
+  else
+    echo "❌ Please type 'yes' or 'no'."
+  fi
+done
+
+# === Tailscale ===
+while true; do
+  read -p "🔒 Enable remote access with Tailscale? (yes/no) [Default: $DEFAULT_ENABLE_TAILSCALE]: " ENABLE_TAILSCALE
+  ENABLE_TAILSCALE="${ENABLE_TAILSCALE,,}"  # lowercase input
+  ENABLE_TAILSCALE="${ENABLE_TAILSCALE:-$DEFAULT_ENABLE_TAILSCALE}"
+  if [[ "$ENABLE_TAILSCALE" =~ ^(yes|no)$ ]]; then
+    break
+  else
+    echo "❌ Please type 'yes' or 'no'."
+  fi
+done
 
 # === Configuration Summary ===
 echo ""
 echo "📋 Configuration Summary:"
 echo "-----------------------------"
-echo "📁 Server Name      : $SERVER_NAME"
-echo "📂 Deployment Folder: $FOLDER_BASE/$SERVER_NAME"
-echo "🧱 Minecraft Version: $MC_VERSION"
-echo "🛠 Server Type      : $SERVER_TYPE"
-echo "🌉 Geyser/Floodgate : $USE_GEYSER"
-echo "📦 Server Port      : $SERVER_PORT"
+echo "📛 Server Name:         $SERVER_NAME"
+echo "🌐 Server Port:         $SERVER_PORT"
+echo "🎮 Minecraft Version:   $MINECRAFT_VERSION"
+echo "⚙️  Server Type:         $SERVER_TYPE"
+echo "🔌 Enable Geyser:       $ENABLE_GEYSER"
+echo "🧠 Memory Allocation:   ${MEMORY_ALLOCATION}GB"
+echo "☁️  Rclone Backups:      $ENABLE_RCLONE"
+echo "🔒 Tailscale Enabled:   $ENABLE_TAILSCALE"
+echo "📂 Install Directory:   $HOME/minecraft_servers/$SERVER_NAME"
 echo "-----------------------------"
 
 # Ask for confirmation
