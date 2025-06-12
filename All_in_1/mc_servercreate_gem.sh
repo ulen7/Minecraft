@@ -155,6 +155,57 @@ if [ "$CONFIRMATION" == "no" ]; then
     exit 1
 fi
 
+# === 4. Directory Setup ===
+# Create folders:
+echo "Generating server folder..."
+mkdir -p "$SERVER_DIR"
+
+
+# === 5. Generate .env File ===
+# Create a .env file with captured/default values
+cat > "$SERVER_DIR/.env" << EOF
+# ----------------------------------
+# Docker & Container Settings
+# ----------------------------------
+# A unique name for your Docker container
+MC_SERVER_NAME=${SERVER_NAME}
+
+# The port players will use to connect on Minecraft JAVA
+JPORT=${MC_JPORT}
+# The port players will use to connect on Minecraft BEDROCK
+BPORT=${MC_BPORT}
+
+# The path on your server where all Minecraft data will be stored
+# The ${SERVER_NAME} part automatically creates a sub-folder for this server
+DATA_PATH=${SERVER_DIR}
+MOD_PATH=/home/your_username/minecraft_servers/mods
+
+# ----------------------------------
+# Minecraft Server Version
+# ----------------------------------
+VERSION=1.21.5
+
+# ----------------------------------
+# Minecraft World Settings
+# ----------------------------------
+# A specific world seed (leave blank for a random seed)
+SEED=
+GAMEMODE=survival
+
+# ----------------------------------
+# Performance Settings
+# ----------------------------------
+# The amount of RAM allocated to the server. 'G' for Gigabytes, 'M' for Megabytes.
+MEMORY=4G
+EOF
+
+# === 6. Generate docker-compose.yml ===
+# Write compose config with:
+# - Vanilla or modded image
+# - Bind volumes
+# - Ports
+# - Geyser/Floodgate if enabled
+
 echo "🚀 Generating docker-compose.yml..."
 mkdir -p "$SERVER_DIR"
 
@@ -163,23 +214,38 @@ cat > "$SERVER_DIR/docker-compose.yml" << EOF
 version: '3.8'
 
 services:
-  mc:
-    image: ${DEFAULT_IMAGE}
+# Name of the minecraft server
+  minecraft :
+    image: itzg/minecraft-server
+    # Container name to an easy access
     container_name: ${SERVER_NAME}
+    tty: true
+    stdin_open: true
     restart: unless-stopped
+    # This are the standard ports for Java and Bedrock that should be available for the docker container. They can be changed if needed.
     ports:
-      - "${MC_JPORT}:25565"
-$( [ "$USE_GEYSER" == "yes" ] && echo "      - \"${DEFAULT_BPORT}:${DEFAULT_BPORT}/udp\"" )
+      - "${JPORT}:${JPORT}"
+      - "${JPORT}:${JPORT}/udp"
     environment:
+      TYPE: FABRIC
+      MODRINTH_PROJECTS: |
+        fabric-api
+      # The SERVER_Port should be the same as the one for Java port available for the docker container.
+      SERVER_PORT: "${JPORT}"
+      # The version can be changed, but the mods must correspond to the version.
+      VERSION: "${VERSION}"
       EULA: "TRUE"
-      VERSION: "${MC_VERSION}"
-      TYPE: "${SERVER_TYPE}"
       MEMORY: "${MEMORY}"
-$( [ "$USE_GEYSER" == "yes" ] && echo "      GEYSER: \"TRUE\"" )
-$( [ "$ENABLE_BACKUPS" == "yes" ] && echo "      BACKUP_INTERVAL: \"24h\"" )
-$( [ "$ENABLE_TAILSCALE" == "yes" ] && echo "      ENABLE_TAILSCALE: \"true\"" )
+      MAX_PLAYERS: "4"
+      MODE: ${GAMEMODE}
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
+      SEED: '${SEED}'
     volumes:
-      - ./data:/data
+      # attach the relative directory 'data' to the container's /data path. You can type pwd in the the linux console to get the correct directory address.
+      - ${DATA_PATH}:/data
+      #Necessary especially to have different servers and the same mods
+      - ${MODS_PATH}:/data/mods
 
 EOF
 
@@ -189,3 +255,22 @@ echo ""
 echo "To start your server, run these commands:"
 echo "   cd $SERVER_DIR"
 echo "   docker-compose up -d"
+
+
+# === 5. Optional: Configure Geyser/Floodgate ===
+# Write configs if enabled
+
+# === 6. Optional: Generate rclone/backup scripts ===
+# Add backup script to `scripts/` if enabled
+
+# === 7. Optional: Set Up Tailscale ===
+# Inject tailscale sidecar container if selected
+
+# === 8. Permissions & Final Review ===
+# `chmod +x` relevant scripts and display summary
+
+# === 9. Launch Container ===
+# Run `docker compose up -d`
+
+# === 10. Completion Message ===
+# Final messages, including tips and where to go next
