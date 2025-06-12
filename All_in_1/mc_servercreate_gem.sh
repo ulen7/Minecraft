@@ -10,6 +10,7 @@ DEFAULT_MEMORY="4G"
 DEFAULT_JPORT="25565"
 DEFAULT_BPORT="19132"
 DEFAULT_IMAGE="itzg/minecraft-server"
+DEFAULT_SEED=""
 DEFAULT_USE_GEYSER="no"
 DEFAULT_ENABLE_BACKUPS="no"
 DEFAULT_ENABLE_TAILSCALE="no"
@@ -90,14 +91,37 @@ done
 
 # === Java Port ===
 while true; do
-    read -p "🌐 Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_PORT
-    MC_PORT="${MC_PORT:-$DEFAULT_JPORT}"
-    if [[ "$MC_PORT" =~ ^[0-9]+$ ]] && [ "$MC_PORT" -ge 1024 ] && [ "$MC_PORT" -le 65535 ]; then
+    read -p "🌐 Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_JPORT
+    MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
+    if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]; then
         break
     else
         echo "❌ Invalid port. Please enter a number between 1024 and 65535."
     fi
 done
+
+# === Bedrock Port ===
+while true; do
+    read -p "🌐 Enter the Bedorck Edition port [${DEFAULT_BPORT}]: " MC_BPORT
+    MC_BPORT="${MC_BPORT:-$DEFAULT_BPORT}"
+    if [[ "$MC_BPORT" =~ ^[0-9]+$ ]] && [ "$MC_BPORT" -ge 1024 ] && [ "$MC_BPORT" -le 65535 ]; then
+        break
+    else
+        echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+    fi
+done
+
+# === SEED ===
+while true; do
+    read -p "🌐 Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
+    MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
+    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 1024 ] && [ "$MC_SEED" -le 65535 ]; then
+        break
+    else
+        echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+    fi
+done
+
 
 # === Optional Features (using the helper function) ===
 USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
@@ -113,7 +137,8 @@ printf "📛 %-20s: %s\n" "Server Name" "$SERVER_NAME"
 printf "🧱 %-20s: %s\n" "Minecraft Version" "$MC_VERSION"
 printf "⚙️ %-20s: %s\n" "Server Type" "$SERVER_TYPE"
 printf "🧠 %-20s: %s\n" "Memory" "$MEMORY"
-printf "🌐 %-20s: %s\n" "Java Port" "$MC_PORT"
+printf "🌐 %-20s: %s\n" "Java Port" "$MC_JPORT"
+printf "🌐 %-20s: %s\n" "Bedrock Port" "$MC_BPORT"
 printf "🌉 %-20s: %s\n" "Enable Geyser" "$USE_GEYSER"
 if [ "$USE_GEYSER" == "yes" ]; then
     printf "📱 %-20s: %s\n" "Bedrock Port" "$DEFAULT_BPORT"
@@ -143,7 +168,7 @@ services:
     container_name: ${SERVER_NAME}
     restart: unless-stopped
     ports:
-      - "${MC_PORT}:25565"
+      - "${MC_JPORT}:25565"
 $( [ "$USE_GEYSER" == "yes" ] && echo "      - \"${DEFAULT_BPORT}:${DEFAULT_BPORT}/udp\"" )
     environment:
       EULA: "TRUE"
