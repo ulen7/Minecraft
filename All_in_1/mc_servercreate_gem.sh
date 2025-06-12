@@ -115,10 +115,10 @@ done
 while true; do
     read -p "🌐 Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
     MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
-    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 1024 ] && [ "$MC_SEED" -le 65535 ]; then
-        break
+    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 0 ] && [ "$MC_SEED" -le 9999999999999999999 ]; then
+        break        
     else
-        echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+        echo "❌ Invalid Seed. Please enter a number between 0 and 9999999999999999999."
     fi
 done
 
@@ -138,10 +138,10 @@ printf "🧱 %-20s: %s\n" "Minecraft Version" "$MC_VERSION"
 printf "⚙️ %-20s: %s\n" "Server Type" "$SERVER_TYPE"
 printf "🧠 %-20s: %s\n" "Memory" "$MEMORY"
 printf "🌐 %-20s: %s\n" "Java Port" "$MC_JPORT"
-printf "🌐 %-20s: %s\n" "Bedrock Port" "$MC_BPORT"
 printf "🌉 %-20s: %s\n" "Enable Geyser" "$USE_GEYSER"
+printf "🌉 %-20s: %s\n" "SEED" "https://www.chunkbase.com/apps/seed-map#seed=""$MC_SEED"
 if [ "$USE_GEYSER" == "yes" ]; then
-    printf "📱 %-20s: %s\n" "Bedrock Port" "$DEFAULT_BPORT"
+    printf "📱 %-20s: %s\n" "Bedrock Port" "$MC_BPORT"
 fi
 printf "☁️ %-20s: %s\n" "Enable Backups" "$ENABLE_BACKUPS"
 printf "🔒 %-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
