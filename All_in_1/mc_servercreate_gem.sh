@@ -193,7 +193,7 @@ $(if [ "$USE_GEYSER" == "yes" ]; then echo "      # Bedrock Edition Port (Geyser
       SEED: "${MC_SEED}"
     volumes:
       # Persists server data in a 'data' sub-folder
-      - ./data:/data
+      - ${SERVER_DIR}:/data
 
 EOF
 
