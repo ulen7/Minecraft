@@ -191,11 +191,6 @@ $(if [ "$USE_GEYSER" == "yes" ]; then echo "      # Bedrock Edition Port (Geyser
       TYPE: "${SERVER_TYPE^^}" # Convert to uppercase for the container
       MEMORY: "${MEMORY}"
       SEED: "${MC_SEED}"
-      # NEW: Conditional environment variables
-$(if [ "$USE_GEYSER" == "yes" ]; then echo "      GEYSER: \"TRUE\""; fi)
-$(if [ "$ENABLE_BACKUPS" == "yes" ]; then echo "      BACKUPS_SCHEDULE: \"0 2 * * *\" # Runs backup every day at 2 AM
-      BACKUPS_TO_KEEP: \"7\""; fi)
-$(if [ "$ENABLE_TAILSCALE" == "yes" ]; then echo "      ENABLE_TAILSCALE: \"true\""; fi)
     volumes:
       # Persists server data in a 'data' sub-folder
       - ./data:/data
