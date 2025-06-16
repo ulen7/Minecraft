@@ -241,6 +241,7 @@ $(if [ "$USE_GEYSER" == "yes" ]; then echo "      # Bedrock Edition Port (Geyser
     volumes:
       # Persists server data in a 'data' sub-folder
       - ${SERVER_DIR}:/data
+      
 # ADDED: RCON Web UI Service
 $(if [ "$ENABLE_RCON_WEB" == "yes" ]; then cat << 'RCON_EOF'
 
@@ -255,6 +256,27 @@ $(if [ "$ENABLE_RCON_WEB" == "yes" ]; then cat << 'RCON_EOF'
 RCON_EOF
 fi)
 
+# ADDED: Tailscale container
+$(if [ "$ENABLE_TAILSCALE" == "yes" ]; then cat << TAILSCALE_EOF
+
+  tailscale-sidecar:
+    image: tailscale/tailscale:latest
+    hostname: ${SERVER_NAME} # Sets the machine name in Tailscale
+    container_name: ${SERVER_NAME}-tailscale-sidecar
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:minecraft-server
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+    volumes:
+      - ./tailscale-state:/var/lib/tailscale
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+    restart: unless-stopped
+TAILSCALE_EOF
+fi)
 EOF
 
 echo "✅ Success! Your 'docker-compose.yml' has been created in:"
@@ -266,6 +288,8 @@ echo ""
 echo "To start your server, run these commands:"
 echo "   cd $SERVER_DIR"
 echo "   docker-compose up -d"
+
+#RCON prompt
 if [ "$ENABLE_RCON_WEB" == "yes" ]; then
 echo ""
 echo "➡️ You can access the RCON Web UI at: http://localhost:${RCON_WEB_PORT}"
@@ -273,6 +297,17 @@ echo "   You will need to add a server with the following details:"
 echo "   - Host: ${SERVER_NAME}"
 echo "   - Port: 25575"
 echo "   - Password: [the password you entered]"
+
+#Tailscale prompt
+if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+echo ""
+echo "🔒 Tailscale is enabled. Your server will be available on your Tailnet."
+echo "   Check your Tailscale admin console for the new machine named '${SERVER_NAME}'."
+echo "   You can connect in Minecraft using its Tailscale IP or hostname."
+else
+echo ""
+echo "🌐 Your server should be available at: localhost:${MC_JPORT}"
+fi
 fi
 
 
