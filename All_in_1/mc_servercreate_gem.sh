@@ -251,6 +251,14 @@ echo ""
 echo "To start your server, run these commands:"
 echo "   cd $SERVER_DIR"
 echo "   docker-compose up -d"
+if [ "$ENABLE_RCON_WEB" == "yes" ]; then
+echo ""
+echo "➡️ You can access the RCON Web UI at: http://localhost:${RCON_WEB_PORT}"
+echo "   You will need to add a server with the following details:"
+echo "   - Host: ${SERVER_NAME}"
+echo "   - Port: 25575"
+echo "   - Password: [the password you entered]"
+fi
 
 
 # === 5. Optional: Configure Geyser/Floodgate ===
