@@ -153,7 +153,22 @@ fi
 # === Optional Features (using the helper function) ===
 USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
 ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
+
+# === NEW: Tailscale Prompt & Secure Key Input ===
 ENABLE_TAILSCALE=$(prompt_yes_no "🔒 Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
+if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+    echo "Please generate an Auth Key from your Tailscale Admin Console."
+    echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
+    while true; do
+        read -s -p "🔑 Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
+        echo
+        if [ -n "$TS_AUTHKEY" ]; then
+            break
+        else
+            echo "❌ Auth Key cannot be empty."
+        fi
+    done
+fi
 
 # === 3. Configuration Summary ===
 SERVER_DIR="$HOME/minecraft_servers/$SERVER_NAME"
