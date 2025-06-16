@@ -172,6 +172,11 @@ if [ "$USE_GEYSER" == "yes" ]; then
 fi
 printf "☁️ %-20s: %s\n" "Enable Backups" "$ENABLE_BACKUPS"
 printf "🔒 %-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
+# --- ADDED: RCON Summary ---
+printf "🖥️  %-20s: %s\n" "Enable RCON Web UI" "$ENABLE_RCON_WEB"
+if [ "$ENABLE_RCON_WEB" == "yes" ]; then
+    printf "🕸️  %-20s: %s\n" "RCON Web UI Port" "$RCON_WEB_PORT"
+fi
 printf "📂 %-20s: %s\n" "Install Directory" "$SERVER_DIR"
 printf "%-22s %s\n" "----------------------" "----------------------------------------"
 
