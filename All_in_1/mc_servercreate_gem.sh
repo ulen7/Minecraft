@@ -122,6 +122,29 @@ while true; do
     fi
 done
 
+# === NEW SECTION: RCON Configuration ===
+ENABLE_RCON_WEB=$(prompt_yes_no "🖥️  Enable RCON Web UI for server console? (y/n) [${DEFAULT_ENABLE_RCON_WEB}]: " "$DEFAULT_ENABLE_RCON_WEB")
+if [ "$ENABLE_RCON_WEB" == "yes" ]; then
+    while true; do
+        read -s -p "🔑 Enter a strong RCON password (will not be displayed): " RCON_PASSWORD
+        echo
+        if [ -n "$RCON_PASSWORD" ]; then
+            break
+        else
+            echo "❌ Password cannot be empty."
+        fi
+    done
+    while true; do
+        read -p "🕸️  Enter the port for the RCON Web UI [${DEFAULT_RCON_WEB_PORT}]: " RCON_WEB_PORT
+        RCON_WEB_PORT="${RCON_WEB_PORT:-$DEFAULT_RCON_WEB_PORT}"
+        if [[ "$RCON_WEB_PORT" =~ ^[0-9]+$ ]] && [ "$RCON_WEB_PORT" -ge 1024 ] && [ "$RCON_WEB_PORT" -le 65535 ]; then
+            break
+        else
+            echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+        fi
+    done
+fi
+
 
 # === Optional Features (using the helper function) ===
 USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
