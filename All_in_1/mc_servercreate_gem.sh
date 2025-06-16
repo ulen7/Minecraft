@@ -226,6 +226,19 @@ $(if [ "$USE_GEYSER" == "yes" ]; then echo "      # Bedrock Edition Port (Geyser
     volumes:
       # Persists server data in a 'data' sub-folder
       - ${SERVER_DIR}:/data
+# ADDED: RCON Web UI Service
+$(if [ "$ENABLE_RCON_WEB" == "yes" ]; then cat << 'RCON_EOF'
+
+  rcon-web:
+    image: joanlopez/rcon-web-admin
+    container_name: ${SERVER_NAME}-rcon-web
+    restart: unless-stopped
+    ports:
+      - "${RCON_WEB_PORT}:8000"
+    volumes:
+      - ./rcon-web-data:/app/db
+RCON_EOF
+fi)
 
 EOF
 
