@@ -157,7 +157,8 @@ ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAUL
 # === NEW: Tailscale Prompt & Secure Key Input ===
 ENABLE_TAILSCALE=$(prompt_yes_no "🔒 Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
-    echo "Please generate an Auth Key from your Tailscale Admin Console."
+    echo "Please generate an Auth Key from your Tailscale Admin Console.For more information go here"
+    echo "https://tailscale.com/kb/1085/auth-keys"
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
     while true; do
         read -s -p "🔑 Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
