@@ -275,7 +275,6 @@ cat >> docker-compose.yml <<EOF
 EOF
 
 [ -n "$MOD_ENV_BLOCK" ] && echo "$MOD_ENV_BLOCK" >> docker-compose.yml
-[ "$USE_GEYSER" == "yes" ] && echo "      GEYSER: \"TRUE\"" >> docker-compose.yml
 
 cat >> docker-compose.yml <<EOF
     volumes:
@@ -312,15 +311,6 @@ echo "To start your server, run these commands:"
 echo "   cd $SERVER_DIR"
 echo "   docker-compose up -d"
 
-#RCON prompt
-if [ "$ENABLE_RCON_WEB" == "yes" ]; then
-echo ""
-echo "➡️ You can access the RCON Web UI at: http://localhost:${RCON_WEB_PORT}"
-echo "   You will need to add a server with the following details:"
-echo "   - Host: ${SERVER_NAME}"
-echo "   - Port: 25575"
-echo "   - Password: [the password you entered]"
-
 #Tailscale prompt
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
 echo ""
@@ -336,6 +326,19 @@ fi
 
 # === 5. Optional: Configure Geyser/Floodgate ===
 # Write configs if enabled
+
+# bedrock: 
+    # The IP address that will listen for connections. 
+    # Generally, you should only uncomment and change this if you want to limit what IPs can connect to your server. 
+    #address: 0.0.0.0 
+
+    # The port that will listen for connections. This is the port that Bedrock players will use to connect to your server.
+    # port: 19132 
+
+    # Some hosting services change your Java port everytime you start the server and require the same port to be used for Bedrock. 
+    # This option makes the Bedrock port the same as the Java port every time you start the server. 
+    # This option is for the plugin version only. 
+    # clone-remote-port: false 
 
 # === 6. Optional: Generate rclone/backup scripts ===
 # Add backup script to `scripts/` if enabled
