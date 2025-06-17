@@ -257,12 +257,13 @@ EOF
 
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
   echo "    network_mode: \"service:tailscale-sidecar\"" >> docker-compose.yml
-else
-  echo "    ports:" >> docker-compose.yml
-  echo "      - \"${MC_JPORT}:${MC_JPORT}\"" >> docker-compose.yml
-  [ "$USE_GEYSER" == "yes" ] && echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
-  [ "$ENABLE_RCON_WEB" == "yes" ] && echo "      - \"${DEFAULT_RCON_PORT}:25575\"" >> docker-compose.yml
 fi
+
+cat >> docker-compose.yml <<EOF
+    ports:"
+      - \"${MC_JPORT}:${MC_JPORT}\""
+EOF
+[ "$USE_GEYSER" == "yes" ] && echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
 
 cat >> docker-compose.yml <<EOF
     environment:
@@ -275,42 +276,11 @@ EOF
 
 [ -n "$MOD_ENV_BLOCK" ] && echo "$MOD_ENV_BLOCK" >> docker-compose.yml
 [ "$USE_GEYSER" == "yes" ] && echo "      GEYSER: \"TRUE\"" >> docker-compose.yml
-if [ "$ENABLE_BACKUPS" == "yes" ]; then
-  cat >> docker-compose.yml <<EOF
-      BACKUPS_SCHEDULE: "0 2 * * *"
-      BACKUPS_TO_KEEP: "7"
-EOF
-fi
-if [ "$ENABLE_RCON_WEB" == "yes" ]; then
-  cat >> docker-compose.yml <<EOF
-      ENABLE_RCON: "true"
-      RCON_PORT: "25575"
-      RCON_PASSWORD: "${RCON_PASSWORD}"
-EOF
-fi
 
-echo "    volumes:" >> docker-compose.yml
-echo "      - ${SERVER_DIR}:/data" >> docker-compose.yml
-
-if [ "$ENABLE_TAILSCALE" == "yes" ]; then
-  echo "    depends_on:" >> docker-compose.yml
-  echo "      - tailscale-sidecar" >> docker-compose.yml
-fi
-
-# Append RCON service if needed
-if [ "$ENABLE_RCON_WEB" == "yes" ]; then
 cat >> docker-compose.yml <<EOF
-
-  rcon-web:
-    image: joanlopez/rcon-web-admin
-    container_name: ${SERVER_NAME}-rcon-web
-    restart: unless-stopped
-    ports:
-      - "${RCON_WEB_PORT}:8000"
     volumes:
-      - ./rcon-web-data:/app/db"
+      - ${SERVER_DIR}:/data"
 EOF
-fi
 
 # Append Tailscale service if needed
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
@@ -334,9 +304,6 @@ cat >> docker-compose.yml <<EOF
     restart: unless-stopped
 EOF
 fi
-
-echo "✅ Success! Your 'docker-compose.yml' has been created in:"
-echo "   $SERVER_DIR"
 
 echo "✅ Success! Your 'docker-compose.yml' has been created in:"
 echo "   $SERVER_DIR"
