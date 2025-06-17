@@ -6,7 +6,7 @@
 DEFAULT_SERVER_NAME="mc_server"
 DEFAULT_VERSION="1.21"
 DEFAULT_SERVER_TYPE="fabric"
-DEFAULT_MEMORY="4G"
+DEFAULT_MEMORY="4"
 DEFAULT_JPORT="25565"
 DEFAULT_BPORT="19132"
 DEFAULT_IMAGE="itzg/minecraft-server"
@@ -84,12 +84,22 @@ done
 
 # === Memory Allocation ===
 while true; do
-    read -p "🧠 How much memory to allocate (e.g., 4G, 8G) [${DEFAULT_MEMORY}]: " MEMORY
+    # Prompt for a number only, indicating the valid range.
+    read -p "🧠 How much memory in GB to allocate (4-32) [${DEFAULT_MEMORY}]: " MEMORY
+
+    # Apply the default value if the user just presses Enter.
     MEMORY="${MEMORY:-$DEFAULT_MEMORY}"
-    if [[ "$MEMORY" =~ ^[0-9]+G$ ]]; then
+
+    # First, check if the input is a whole number.
+    # Then, check if the number is between 4 and 32 (inclusive).
+    if [[ "$MEMORY" =~ ^[0-9]+$ ]] && (( MEMORY >= 4 && MEMORY <= 32 )); then
+        # If validation passes, append 'G' to the number and store it.
+        MEMORY="${MEMORY}G"
+        # Exit the loop.
         break
     else
-        echo "❌ Please enter a number followed by 'G' (e.g., 4G)."
+        # If validation fails, print an error and the loop will repeat.
+        echo "❌ Please enter a whole number between 4 and 32."
     fi
 done
 
@@ -234,7 +244,6 @@ $(if [ "$USE_GEYSER" == "yes" ]; then echo "      # Bedrock Edition Port (Geyser
       - \"${MC_BPORT}:${MC_BPORT}/udp\""; fi)
     environment:
       EULA: "TRUE"
-      # FIX: Use variables collected from the user
       VERSION: "${MC_VERSION}"
       TYPE: "${SERVER_TYPE^^}" # Convert to uppercase for the container
       MEMORY: "${MEMORY}"
