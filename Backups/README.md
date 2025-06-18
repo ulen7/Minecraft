@@ -1,4 +1,4 @@
-# 🧰 Minecraft Server Backup Automation
+# Minecraft Server Backup Automation
 
 ![Backup Status](https://img.shields.io/badge/backups-automated-brightgreen)
 ![Sync](https://img.shields.io/badge/google--drive-synced-blue)
@@ -10,7 +10,7 @@ Supports multiple worlds, backup rotation, and Google Drive syncing via [`rclone
 
 ---
 
-## 💡 Features
+## Features
 
 - ✅ Weekly scheduled backups
 - ✅ Compresses and rotates backups (keeps 3)
@@ -20,7 +20,7 @@ Supports multiple worlds, backup rotation, and Google Drive syncing via [`rclone
 
 ---
 
-## 🛠 Requirements
+## Requirements
 
 - World stored on host (volume mount)
 - `rclone` installed and configured for Google Drive
@@ -37,7 +37,7 @@ Each world has:
 
 ---
 
-## 🚀 Setup
+## Setup
 
 ### ☁️ 1. Install `rclone`
 
@@ -49,7 +49,7 @@ This guide walks you through installing and configuring `rclone` to connect a **
 
 ---
 
-##### 1.1.1 📥 Download the rclone Installer
+##### 1.1.1 Download the rclone Installer
 
 Visit the official site:  
 👉 [https://rclone.org/downloads/](https://rclone.org/downloads/)
@@ -61,7 +61,7 @@ Download the version for your system:
 
 ---
 
-##### 1.1.2 🗂 Extract the ZIP File
+##### 1.1.2 Extract the ZIP File
 
 Extract the downloaded ZIP to a folder like:
 
@@ -77,7 +77,7 @@ Inside you'll find:
 
 ---
 
-#### 1.1.3 ⚙️ (Optional) Add rclone to your System PATH
+#### 1.1.3 (Optional) Add rclone to your System PATH
 
 So you can run `rclone` from any terminal window:
 
@@ -93,7 +93,7 @@ So you can run `rclone` from any terminal window:
 
 ---
 
-#### 1.1.4 ✅  the Installation
+#### 1.1.4 the Installation
 
 Open **Command Prompt** or **PowerShell** and run:
 
@@ -118,7 +118,7 @@ This guide walks you through installing and configuring `rclone` to connect a **
 
 ---
 
-#### 📦 1.2.1: Install rclone
+#### 1.2.1: Install rclone
 
 Run the following in your terminal:
 
@@ -135,7 +135,7 @@ rclone version
 
 ---
 
-#### 🔑 1.2.2: Configure Google Drive (Headless Auth)
+#### 1.2.2: Configure Google Drive (Headless Auth)
 
 Because the server is headless (no browser), follow this approach:
 
@@ -158,7 +158,7 @@ rclone config
 
 ---
 
-#### 🌐 1.2.3: Authorize via Browser
+#### 1.2.3: Authorize via Browser
 
 1. Copy the command from the SSH terminal
 2. Paste it into your Windows Terminal on your **local computer** with rclone installed
@@ -169,7 +169,7 @@ rclone config
 
 ---
 
-#### 📁 1.2.4: Finalize Config
+#### 1.2.4: Finalize Config
 
 - Choose defaults for team drive unless you're using one
 - Once done, `rclone` will save the config to `~/.config/rclone/rclone.conf`
@@ -184,7 +184,7 @@ If you see no errors or some files listed — you're connected!
 
 ---
 
-## ✅ Example Usage
+## Example Usage
 
 List Google Drive contents:
 
@@ -246,7 +246,7 @@ done
 ---
 
 
-### 🧪 Manual Test
+### Manual Test
 
 While in the directory of the bash file
 
@@ -267,7 +267,7 @@ This project uses a `cron` job to automatically back up the Minecraft server wor
 
 ---
 
-#### 🧪 Step-by-Step Guide
+#### Step-by-Step Guide
 
 ##### 3.1 Open Crontab
 
@@ -291,7 +291,7 @@ At the bottom of the file, add the following line:
 
 ---
 
-#### 🧠 What This Does
+#### What This Does
 
 ##### 🔢 Schedule (`0 3 * * 0`)
 
@@ -303,11 +303,11 @@ At the bottom of the file, add the following line:
 | Month     | `*`   | Every month                |
 | Weekday   | `0`   | Sunday (`0` = Sunday)      |
 
-➡️ This means the script runs **every Sunday at 3:00 AM**.
+This means the script runs **every Sunday at 3:00 AM**.
 
 ---
 
-##### 🌍 Timezone Override
+##### Timezone Override
 
 ```bash
 TZ=America/Toronto
@@ -317,7 +317,7 @@ Ensures the task runs using the **America/Toronto timezone**, which is helpful i
 
 ---
 
-##### 🛠 Script Path
+##### Script Path
 
 ```bash
 /home/server_name/scripts/mc_backup.sh
@@ -362,11 +362,11 @@ You can check this log to confirm backups ran successfully.
 
 ---
 
-#### 🧪 Cron Expression Validator
+#### Cron Expression Validator
 
 If you're unsure your `cron` schedule is correct, you can test it online using these tools:
 
-- 🧮 **[Crontab Guru](https://crontab.guru/)**  
+- **[Crontab Guru](https://crontab.guru/)**  
   Simple and user-friendly — perfect for quick checks.
 
 ---
