@@ -8,7 +8,7 @@ This folder contains everything related to running the Minecraft server using Do
 
 ---
 
-## 📦 Step 1: Install Docker
+## Step 1: Install Docker
 
 For most systems, you can install Docker using the official script:
 
@@ -28,14 +28,14 @@ sudo apt install docker.io
 
 ---
 
-## ▶️ Step 2: Enable and Start Docker
+## Step 2: Enable and Start Docker
 
 ```
 sudo systemctl enable docker
 sudo systemctl start docker
 ```
 
-## 📦 Step 3: Install Docker Compose
+## Step 3: Install Docker Compose
 
 Recent Docker versions include Compose as a plugin:
 
@@ -53,7 +53,7 @@ sudo apt install docker-compose
 
 ---
 
-### 📄 Step 4 Understanding the `docker-compose.yml`
+### Step 4 Understanding the `docker-compose.yml`
 
 The `docker-compose.yml` file is the recipe for your server. Here’s a quick breakdown of the important parts:
 
@@ -73,7 +73,7 @@ Before you launch the server, you need to modify the configuration file `.env` i
 
 ---
 
-## Step 6: 🚀 Running the Server
+## Step 6: Running the Server
 
 Now everything should be ready. Navigate to the project folder and run:
 
@@ -95,7 +95,7 @@ docker compose logs -f
 
 ---
 
-### 🔁 Updating the Container
+### Updating the Container
 
 Rebuild the container if you made changes to the Dockerfile:
 ```
@@ -109,7 +109,7 @@ docker compose pull
 
 ---
 
-### 🛠 Troubleshooting
+### Troubleshooting
 
 #### 1. Check Docker service status
 ```
