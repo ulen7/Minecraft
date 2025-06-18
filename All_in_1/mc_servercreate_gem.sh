@@ -260,11 +260,12 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
 fi
 
 cat >> docker-compose.yml <<EOF
-    ports:"
+    ports:
       - \"${MC_JPORT}:${MC_JPORT}\""
 EOF
-[ "$USE_GEYSER" == "yes" ] && echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
-
+if [ "$USE_GEYSER" == "yes" ]; then
+  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
+fi
 cat >> docker-compose.yml <<EOF
     environment:
       EULA: "TRUE"
@@ -278,7 +279,7 @@ EOF
 
 cat >> docker-compose.yml <<EOF
     volumes:
-      - ${SERVER_DIR}:/data"
+      - ${SERVER_DIR}:/data
 EOF
 
 # Append Tailscale service if needed
