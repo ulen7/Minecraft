@@ -1,11 +1,11 @@
-# 🔧 Minecraft Mods, Resource Packs & Shaders Setup
+# Minecraft Mods, Resource Packs & Shaders Setup
 
 This guide explains how to install and manage **Mods**, **Resource Packs**, and **Shaders** in your Minecraft Fabric server.  
 It also covers the configuration for **Geyser** and **Floodgate** to support Bedrock players on a Java server.
 
 ---
 
-## 🧩 What’s the Difference?
+## What’s the Difference?
 
 | Type            | Description                                                                 | Installed On       | File Type       |
 |------------------|------------------------------------------------------------------------------|--------------------|------------------|
@@ -15,9 +15,9 @@ It also covers the configuration for **Geyser** and **Floodgate** to support Bed
 
 ---
 
-## 📂 Where to Put Things
+## Where to Put Things
 
-### ✅ Mods
+### Mods
 
 Put your mods (e.g., `sodium.jar`, `geyser-fabric.jar`) in the following folder on your **server**:
 
@@ -31,7 +31,7 @@ Make sure all mods are compatible with:
 
 ---
 
-### 🎨 Resource Packs
+### Resource Packs
 
 Resource packs are only needed **on the client**.
 
@@ -45,7 +45,7 @@ To install:
 
 ---
 
-### 🌅 Shaders
+### Shaders
 
 Shaders are also **client-side only**.
 
@@ -59,7 +59,7 @@ Popular shaders include **Complementary**, **BSL**, and **Sildur’s Vibrant**.
 
 ---
 
-## 🌉 Geyser & Floodgate Setup (Bedrock Support)
+## Geyser & Floodgate Setup (Bedrock Support)
 
 Geyser and Floodgate allow **Bedrock Edition** players to join a **Java server** — no extra server needed.
 
@@ -69,11 +69,11 @@ Copy the following `.jar` files into your server's `mods/` folder:
 - `geyser-fabric.jar`
 - `floodgate-fabric.jar`
 
-> ✅ Make sure both match the server’s Minecraft & Fabric versions.
+> Make sure both match the server’s Minecraft & Fabric versions.
 
 ---
 
-### ⚙️ Step 2: First Launch to Generate Configs
+### Step 2: First Launch to Generate Configs
 
 Start your server once to auto-generate the Geyser and Floodgate config files inside:
 
@@ -90,21 +90,21 @@ Make sure all mods are compatible with:
 
 ---
 
-## 🌉 Geyser & Floodgate Setup (Bedrock Support)
+## Geyser & Floodgate Setup (Bedrock Support)
 
 Geyser and Floodgate allow **Bedrock Edition** players to join a **Java server** — no extra server needed.
 
-### 🔌 Step 1: Install the Mods
+### Step 1: Install the Mods
 
 Copy the following `.jar` files into your server's `mods/` folder:
 - `geyser-fabric.jar`
 - `floodgate-fabric.jar`
 
-> ✅ Make sure both match the server’s Minecraft & Fabric versions.
+> Make sure both match the server’s Minecraft & Fabric versions.
 
 ---
 
-### ⚙️ Step 2: First Launch to Generate Configs
+### Step 2: First Launch to Generate Configs
 
 Start your server once to auto-generate the Geyser and Floodgate config files inside:
 
@@ -118,7 +118,7 @@ You should see:
 
 ---
 
-### ✏️ Step 3: Configure Geyser
+### Step 3: Configure Geyser
 
 Open the file `config/geyser-fabric.yml` and adjust the following:
 
