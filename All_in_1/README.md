@@ -63,4 +63,21 @@ An interactive Bash script that helps you configure and deploy a fully customize
   - Install rclone
   - Configure your remote (e.g., gdrive)
   - Add the provided cron job:
+ 
+    
+    ```
+    crontab -e
+    # Add this line (example)
+    0 3 * * 0 TZ=America/Toronto /home/user/minecraft_servers/myserver/scripts/backup.sh >> /home/user/minecraft_servers/myserver/scripts/cron.log 2>&1
+    ```
+
+---
+
+## 🔒 Tailscale Setup
+If enabled:
+- A sidecar container is added to provide Tailscale access
+- You’ll need an auth key from your Tailscale admin panel
+- Your server becomes reachable via your Tailnet IP/hostname
+
+---
 
