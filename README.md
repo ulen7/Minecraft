@@ -15,7 +15,7 @@ This repository documents my journey in setting up a personal, modded Minecraft 
 My goal is to continuously improve this setup, learn as I go, and create a comprehensive guide for others who might want to do the same.
 
 ---
-### ✨ Core Features
+### Core Features
 
 * **Containerized with Docker:** Easy to manage, deploy, and replicate the server environment.
 * **Modded with Fabric:** Running a lightweight, moddable server version.
@@ -23,7 +23,7 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 * **Automated Backups:** Nightly backups of the world data are automatically created and uploaded to Google Drive, so we never lose our progress.
 ---
 
-### 🗂 Folder Structure
+### Folder Structure
 
 | Folder | Description |
 |--------|-------------|
@@ -35,7 +35,7 @@ My goal is to continuously improve this setup, learn as I go, and create a compr
 
 ---
 
-### 💡 Goals
+### Goals
 
 - 🧠 Learn by doing (Docker, automation, modding)
 - ⚙️ Build a stable Minecraft server setup for my kid
@@ -51,7 +51,7 @@ I'm not an expert — this is a personal learning project. Use this repo at your
 
 ---
 
-### 💡 Future Plans
+### Future Plans
 
 This project is always evolving. Here are some things I'm thinking about next:
 
