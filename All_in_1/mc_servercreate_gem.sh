@@ -14,10 +14,6 @@ DEFAULT_SEED=""
 DEFAULT_USE_GEYSER="no"
 DEFAULT_ENABLE_BACKUPS="no"
 DEFAULT_ENABLE_TAILSCALE="no"
-# --- NEW: RCON Defaults ---
-DEFAULT_ENABLE_RCON_WEB="no"
-DEFAULT_RCON_PORT="25575"
-DEFAULT_RCON_WEB_PORT="8080"
 
 # === 1. Helper Functions ===
 # Reusable function for handling yes/no prompts
