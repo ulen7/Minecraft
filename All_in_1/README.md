@@ -82,6 +82,7 @@ If enabled:
 ---
 
 ## Planned Features
+- Other checks like port repetion and different name for backups
 - Allow user to select when to do the backups and how often.
 - Option to display and validate YAML before launch
 - Manual mod input for Fabric servers
