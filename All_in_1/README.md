@@ -1,10 +1,10 @@
-# 🛠️ Minecraft Docker Server Setup Script
+# Minecraft Docker Server Setup Script
 
 An interactive Bash script that helps you configure and deploy a fully customized Minecraft server using Docker Compose — with support for **Java**, **Bedrock (via Geyser)**, **Fabric mods**, **Tailscale VPN**, **automatic backups to Google Drive**, and optional **RCON web interface**.
 
 ---
 
-## 🚀 Features
+## Features
 
 - 🧱 Supports **Vanilla**, **Fabric**, **Spigot**, and **Paper**
 - 🌉 Optional **Geyser** for Bedrock Edition cross-play
@@ -17,7 +17,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 - **Bash**
 - **Docker** + **Docker Compose V2**
@@ -28,7 +28,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 
 ---
 
-## 🧰 How It Works
+## How It Works
 
 1. Clone or download the script.
 2. Run it in your terminal:
@@ -47,7 +47,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 
 ---
 
-## 📂 Output Files
+## Output Files
 - `docker-compose.yml`: Main config to launch your Minecraft server
 - `scripts/backup.sh`: Cloud backup script (if enabled)
 - `scripts/backup.log`: Backup execution logs
@@ -56,7 +56,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 
 ---
 
-## ⏰ Backups
+## Backups
 - Runs every Sunday at 3:00 AM Toronto time
 - Keeps only the 4 most recent cloud backups
 - To enable:
@@ -73,7 +73,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 
 ---
 
-## 🔒 Tailscale Setup
+## Tailscale Setup
 If enabled:
 - A sidecar container is added to provide Tailscale access
 - You’ll need an auth key from your Tailscale admin panel
@@ -81,3 +81,26 @@ If enabled:
 
 ---
 
+## Planned Features
+- Option to display and validate YAML before launch
+- Manual mod input for Fabric servers
+- Auto-add Geyser plugin for Spigot and Paper
+- Setup logging infrastructure
+- Support for custom profiles (saved configurations)
+- .env support for cleaner docker-compose templates
+
+## License
+This project is released under the MIT License.
+
+## 🙋 FAQ
+Q: Does this support Forge or Bukkit?
+
+    - A: Not currently. The focus is on Fabric, Vanilla, Paper, and Spigot for now.
+
+Q: Can I edit the generated docker-compose.yml?
+
+    - A: Absolutely. Just open it in a text editor after generation.
+
+Q: I made a mistake during setup — do I have to start over?
+
+    -  A: No. The script is designed to be recoverable. You can re-run it and overwrite or adjust values.
