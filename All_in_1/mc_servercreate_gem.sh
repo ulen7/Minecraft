@@ -467,9 +467,9 @@ if [ "$ENABLE_BACKUPS" == "yes" ]; then
 
 # --- Configuration ---
 WORLD_NAME="${SERVER_NAME}"
-WORLD_DATA_DIR="${SERVER_DIR}/data" # Path to the server's data volume
+WORLD_DATA_DIR="${SERVER_DIR}" # Path to the server's data volume
 BACKUP_DIR="${LOCAL_BACKUP_PATH}"
-TIMESTAMP=\$(date +'%Y-%m-%d_%H-%M-%S')
+TIMESTAMP=\$(date +'%Y-%m-%d_%H-%M')
 BACKUP_NAME="\${WORLD_NAME}_\${TIMESTAMP}.tar.gz"
 REMOTE_NAME="${RCLONE_REMOTE}"
 REMOTE_PATH="minecraft_backups/\${WORLD_NAME}"
