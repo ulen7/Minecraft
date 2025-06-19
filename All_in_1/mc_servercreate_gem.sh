@@ -318,7 +318,6 @@ else
 echo ""
 echo "🌐 Your server should be available at: localhost:${MC_JPORT}"
 fi
-fi
 
 # Display Bar snippet
 display_progress_bar() {
