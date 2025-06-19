@@ -36,12 +36,31 @@ An interactive Bash script that helps you configure and deploy a fully customize
    ./setup-mc-server.sh
    ```
 3. Follow the interactive prompts to:
-  - Set server name, version, type, ports, memory, seed
-  - Enable optional services (Geyser, Tailscale, backups, RCON)
-  - Input mod preferences (for Fabric)
+    - Set server name, version, type, ports, memory, seed
+    - Enable optional services (Geyser, Tailscale, backups, RCON)
+    - Input mod preferences (for Fabric)
 4. The script:
-  - Generates a complete docker-compose.yml
-  - Sets up optional Tailscale and backup services
-  - Can immediately launch your server
+    - Generates a complete docker-compose.yml
+    - Sets up optional Tailscale and backup services
+    - Can immediately launch your server
 5. (Optional) Automatically configures Geyser's Bedrock port inside the container.
+
+---
+
+## 📂 Output Files
+- `docker-compose.yml`: Main config to launch your Minecraft server
+- `scripts/backup.sh`: Cloud backup script (if enabled)
+- `scripts/backup.log`: Backup execution logs
+- `scripts/cron.log`: Output of scheduled cron jobs
+- Server files: Located under `~/minecraft_servers/<server_name>`
+
+---
+
+## ⏰ Backups
+- Runs every Sunday at 3:00 AM Toronto time
+- Keeps only the 4 most recent cloud backups
+- To enable:
+  - Install rclone
+  - Configure your remote (e.g., gdrive)
+  - Add the provided cron job:
 
