@@ -324,6 +324,7 @@ echo "🌐 Your server should be available at: localhost:${MC_JPORT}"
 fi
 fi
 
+# Display Bar snippet
 display_progress_bar() {
     local duration=$1
     local message="$2"
@@ -331,23 +332,19 @@ display_progress_bar() {
 
     echo "$message"
     for i in $(seq 1 "$duration"); do
-        # Calculate percentage
         percent=$((i * 100 / duration))
-        # Calculate how many '#' characters to show
         filled=$((i * width / duration))
-        
-        # Create the bar string
-        bar=$(printf "%-${width}s" "" | tr ' ' '#')
-        bar_filled=$(printf "%-${filled}s" "${bar}")
-        bar_empty=$(printf "%-$((width - filled))s" "")
-        
-        # Print the bar and percentage, using \r to overwrite the line
-        printf "\r[%s%s] %d%%" "${bar_filled}" "${bar_empty}" "$percent"
+
+        # Build the filled and empty sections of the bar
+        bar_filled=$(printf "%${filled}s" | tr ' ' '#')
+        bar_empty=$(printf "%$((width - filled))s" | tr ' ' '-')
+
+        printf "\r[%s%s] %d%%" "$bar_filled" "$bar_empty" "$percent"
         sleep 1
     done
-    # Print a newline at the end
     echo ""
 }
+
 
 # === 6. Launch & Final Configuration ===
 
@@ -372,27 +369,31 @@ display_progress_bar 180 "⏳ Giving the server 3 minutes to initialize and gene
 # --- Configure Geyser ---
 if [ "$USE_GEYSER" == "yes" ]; then
     echo "⚙️  Attempting to configure Geyser..."
-    
-    # The path where plugins will be installed on the host machine
+
     PLUGINS_DIR="$SERVER_DIR/config"
-    
-    # Find the Geyser config file, as the folder name can vary (Geyser-Spigot, Geyser-Fabric, etc.)
     GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" | head -n 1)
 
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
         echo "✅ Found Geyser config at: $GEYSER_CONFIG_PATH"
         
-        # Use sed to replace the port number within the 'bedrock:' block
-        # This command finds the line 'port: 19132' (or any number) under 'bedrock:' and replaces the number.
-        sed -i -E "/^  bedrock:$/,/^[a-zA-Z]/ s/^(    port: )[0-9]+$/\1${MC_BPORT}/" "$GEYSER_CONFIG_PATH"
-        
-        echo "✅ Updated Bedrock port to ${MC_BPORT}."
-        
-        # Restart the container for the config change to take effect
-        echo "🔄 Restarting the Minecraft container to apply new settings..."
-        (cd "$SERVER_DIR" && docker compose restart "$SERVER_NAME")
-        
-        echo "🎉 Geyser configuration complete!"
+        echo "🔍 Previewing Bedrock port change:"
+        sed -nE "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
+            /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/p
+        }" "$GEYSER_CONFIG_PATH"
+
+        CONFIRM_SED=$(prompt_yes_no "Apply this change to the config file? (y/n) [y]: " "y")
+        if [ "$CONFIRM_SED" == "yes" ]; then
+            sed -i -E "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
+                /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/
+            }" "$GEYSER_CONFIG_PATH"
+            echo "✅ Updated Bedrock port to ${MC_BPORT}."
+
+            echo "🔄 Restarting the Minecraft container to apply new settings..."
+            (cd "$SERVER_DIR" && docker compose restart "$SERVER_NAME")
+            echo "🎉 Geyser configuration complete!"
+        else
+            echo "❌ Change skipped. You may need to update the port manually later."
+        fi
     else
         echo "⚠️  Could not find Geyser 'config.yml'. The server may need more time to start, or Geyser may not be installed correctly."
         echo "    You may need to set the Bedrock port to ${MC_BPORT} manually and restart the container."
@@ -400,8 +401,156 @@ if [ "$USE_GEYSER" == "yes" ]; then
 fi
 
 # === 7. Optional: Generate rclone/backup scripts ===
-# Add backup script to `scripts/` if enabled
+
+# === NEW: Backup Configuration ===
+if [ "$ENABLE_BACKUPS" == "yes" ]; then
+    echo "--- Configuring Backups ---"
+
+    # Step 1: Check if rclone is installed
+    if ! command -v rclone &> /dev/null; then
+        echo "⚠️  rclone is not installed, but is required for Google Drive backups."
+        INSTALL_RCLONE=$(prompt_yes_no "    Would you like to try and install it now? (requires sudo) (y/n) [y]: " "y")
+        if [ "$INSTALL_RCLONE" == "yes" ]; then
+            # Check for sudo permissions before attempting install
+            if ! sudo -v; then
+                echo "❌ Sudo permissions are required to install packages. Please run the script with sudo or install rclone manually."
+                exit 1
+            fi
+            echo "Installing rclone for Debian/Ubuntu..."
+            sudo apt-get update && sudo apt-get install -y rclone
+            if ! command -v rclone &> /dev/null; then
+                 echo "❌ rclone installation failed. Please install it manually."
+                 exit 1
+            fi
+            echo "✅ rclone installed successfully."
+        else
+            echo "Skipping backup configuration. Please install rclone and re-run to set up backups."
+            ENABLE_BACKUPS="no" # Disable backups for the rest of the script
+        fi
+    fi
+
+    # Step 2: Ask for rclone remote name (only if backups are still enabled)
+    if [ "$ENABLE_BACKUPS" == "yes" ]; then
+         while true; do
+            read -p "Enter the name of your configured rclone remote (e.g., gdrive): " RCLONE_REMOTE
+            if [ -n "$RCLONE_REMOTE" ]; then
+                # Optional: Add a check to see if remote exists
+                if rclone listremotes | grep -q "^${RCLONE_REMOTE}:$"; then
+                    echo "✅ Found rclone remote: ${RCLONE_REMOTE}"
+                    break
+                else
+                    echo "⚠️  Warning: rclone remote '${RCLONE_REMOTE}' not found. Please ensure it is configured correctly."
+                    # Ask user if they want to proceed anyway
+                    PROCEED_ANYWAY=$(prompt_yes_no "    Continue anyway? (y/n) [y]: " "y")
+                    if [ "$PROCEED_ANYWAY" == "yes" ]; then
+                        break
+                    fi
+                fi
+            else
+                echo "❌ Remote name cannot be empty."
+            fi
+        done
+    fi
+fi
+
+# === Generate Backup Script and Cron Job Info ===
+
+if [ "$ENABLE_BACKUPS" == "yes" ]; then
+    echo "⚙️  Generating backup script..."
+    
+    # Define paths for the backup script
+    SCRIPTS_DIR="$SERVER_DIR/scripts"
+    BACKUP_SCRIPT_PATH="$SCRIPTS_DIR/backup.sh"
+    LOCAL_BACKUP_PATH="$HOME/minecraft_backups/$SERVER_NAME" # A central backup location
+    
+    mkdir -p "$SCRIPTS_DIR"
+
+    # Dynamically create the backup.sh script using variables from this session
+    cat > "$BACKUP_SCRIPT_PATH" << EOF
+#!/bin/bash
+# Auto-generated backup script for ${SERVER_NAME}
+
+# --- Configuration ---
+WORLD_NAME="${SERVER_NAME}"
+WORLD_DATA_DIR="${SERVER_DIR}/data" # Path to the server's data volume
+BACKUP_DIR="${LOCAL_BACKUP_PATH}"
+TIMESTAMP=\$(date +'%Y-%m-%d_%H-%M-%S')
+BACKUP_NAME="\${WORLD_NAME}_\${TIMESTAMP}.tar.gz"
+REMOTE_NAME="${RCLONE_REMOTE}"
+REMOTE_PATH="minecraft_backups/\${WORLD_NAME}"
+LOG_FILE="${SCRIPTS_DIR}/backup.log"
+
+# --- Logging ---
+echo "--- Starting Backup for \${WORLD_NAME} at \$(date) ---" >> "\${LOG_FILE}"
+
+# --- Create Backup Directory ---
+mkdir -p "\$BACKUP_DIR"
+
+# --- Create Compressed Backup ---
+# We back up the 'data' directory mounted from the Docker container
+if tar -czf "\$BACKUP_DIR/\$BACKUP_NAME" -C "\$WORLD_DATA_DIR" .; then
+    echo "Successfully created local backup: \$BACKUP_NAME" >> "\${LOG_FILE}"
+else
+    echo "ERROR: Failed to create tarball." >> "\${LOG_FILE}"
+    exit 1
+fi
+
+# --- Rotate Cloud Backups (Keep 4 most recent) ---
+echo "Rotating cloud backups..." >> "${LOG_FILE}"
+rclone ls "${REMOTE_NAME}:${REMOTE_PATH}" | awk '{print $2}' | sort -r | tail -n +5 | while read -r file; do
+    rclone delete "${REMOTE_NAME}:${REMOTE_PATH}/${file}" >> "${LOG_FILE}" 2>&1
+done
+
+
+# --- Upload to Cloud Storage ---
+echo "Uploading to \${REMOTE_NAME}..." >> "\${LOG_FILE}"
+if rclone copy "\$BACKUP_DIR/\$BACKUP_NAME" "\${REMOTE_NAME}:\${REMOTE_PATH}"; then
+    echo "Successfully uploaded to \${REMOTE_NAME}." >> "\${LOG_FILE}"
+else
+    echo "ERROR: rclone upload failed." >> "\${LOG_FILE}"
+fi
+
+# --- Rotate Cloud Backups (Keep 4 most recent) ---
+echo "Rotating cloud backups..." >> "\${LOG_FILE}"
+rclone delete --min-age 28d "\${REMOTE_NAME}:\${REMOTE_PATH}" >> "\${LOG_FILE}" 2>&1
+# An alternative method similar to your docs:
+# rclone ls "\${REMOTE_NAME}:\${REMOTE_PATH}" | awk '{print \$2}' | sort -r | tail -n +5 | while read -r file; do
+#   rclone delete "\${REMOTE_NAME}:\${REMOTE_PATH}/\${file}" >> "\${LOG_FILE}" 2>&1
+# done
+
+echo "--- Backup Complete ---" >> "\${LOG_FILE}"
+
+EOF
+
+    # Make the script executable
+    chmod +x "$BACKUP_SCRIPT_PATH"
+    echo "✅ Backup script created at ${BACKUP_SCRIPT_PATH}"
+
+    # --- Prepare Cron Job Instruction ---
+    CRON_JOB="0 3 * * 0 TZ=America/Toronto ${BACKUP_SCRIPT_PATH} >> ${SCRIPTS_DIR}/cron.log 2>&1"
+    
+    # Store the cron instruction in a variable to display at the end
+    BACKUP_INSTRUCTION=$(cat <<EOF
+
+---
+ backups:
+🔒 To automate your backups, add the following line to your system's crontab.
+   Run 'crontab -e' and paste this line at the bottom:
+
+   ${CRON_JOB}
+
+   This will run the backup every Sunday at 3:00 AM Toronto time.
+EOF
+)
+fi
 
 
 # === 8. Completion Message ===
-# Final messages, including tips and where to go next
+
+# Display the backup instruction if it was generated
+if [ -n "$BACKUP_INSTRUCTION" ]; then
+    echo "$BACKUP_INSTRUCTION"
+fi
+
+echo "---"
+echo "✅ All tasks complete. Enjoy your server!"
