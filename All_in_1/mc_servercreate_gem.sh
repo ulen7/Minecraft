@@ -349,33 +349,59 @@ display_progress_bar() {
     echo ""
 }
 
-# === 5. Optional: Configure Geyser/Floodgate ===
-# Write configs if enabled
+# === 6. Launch & Final Configuration ===
 
-# bedrock: 
-    # The IP address that will listen for connections. 
-    # Generally, you should only uncomment and change this if you want to limit what IPs can connect to your server. 
-    #address: 0.0.0.0 
+# Ask the user if they want to start the server now
+LAUNCH_NOW=$(prompt_yes_no "✅ Your files are generated. Would you like to start the server now? (y/n) [y]: " "y")
 
-    # The port that will listen for connections. This is the port that Bedrock players will use to connect to your server.
-    # port: 19132 
+if [ "$LAUNCH_NOW" == "no" ]; then
+    echo "👍 All set. You can start your server later by running the commands listed above."
+    exit 0
+fi
 
-    # Some hosting services change your Java port everytime you start the server and require the same port to be used for Bedrock. 
-    # This option makes the Bedrock port the same as the Java port every time you start the server. 
-    # This option is for the plugin version only. 
-    # clone-remote-port: false
+# --- Start the Docker Container ---
+echo "🚀 Starting the server in the background..."
+if ! (cd "$SERVER_DIR" && docker compose up -d); then
+    echo "❌ Docker Compose failed to start. Please check for errors."
+    exit 1
+fi
 
-# === 6. Optional: Generate rclone/backup scripts ===
+# --- Wait for Server Initialization ---
+display_progress_bar 180 "⏳ Giving the server 3 minutes to initialize and generate files..."
+
+# --- Configure Geyser ---
+if [ "$USE_GEYSER" == "yes" ]; then
+    echo "⚙️  Attempting to configure Geyser..."
+    
+    # The path where plugins will be installed on the host machine
+    PLUGINS_DIR="$SERVER_DIR/config"
+    
+    # Find the Geyser config file, as the folder name can vary (Geyser-Spigot, Geyser-Fabric, etc.)
+    GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" | head -n 1)
+
+    if [ -f "$GEYSER_CONFIG_PATH" ]; then
+        echo "✅ Found Geyser config at: $GEYSER_CONFIG_PATH"
+        
+        # Use sed to replace the port number within the 'bedrock:' block
+        # This command finds the line 'port: 19132' (or any number) under 'bedrock:' and replaces the number.
+        sed -i -E "/^  bedrock:$/,/^[a-zA-Z]/ s/^(    port: )[0-9]+$/\1${MC_BPORT}/" "$GEYSER_CONFIG_PATH"
+        
+        echo "✅ Updated Bedrock port to ${MC_BPORT}."
+        
+        # Restart the container for the config change to take effect
+        echo "🔄 Restarting the Minecraft container to apply new settings..."
+        (cd "$SERVER_DIR" && docker compose restart "$SERVER_NAME")
+        
+        echo "🎉 Geyser configuration complete!"
+    else
+        echo "⚠️  Could not find Geyser 'config.yml'. The server may need more time to start, or Geyser may not be installed correctly."
+        echo "    You may need to set the Bedrock port to ${MC_BPORT} manually and restart the container."
+    fi
+fi
+
+# === 7. Optional: Generate rclone/backup scripts ===
 # Add backup script to `scripts/` if enabled
 
-# === 7. Optional: Set Up Tailscale ===
-# Inject tailscale sidecar container if selected
 
-# === 8. Permissions & Final Review ===
-# `chmod +x` relevant scripts and display summary
-
-# === 9. Launch Container ===
-# Run `docker compose up -d`
-
-# === 10. Completion Message ===
+# === 8. Completion Message ===
 # Final messages, including tips and where to go next
