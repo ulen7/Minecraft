@@ -506,12 +506,9 @@ else
 fi
 
 # --- Rotate Cloud Backups (Keep 4 most recent) ---
-echo "Rotating cloud backups..." >> "\${LOG_FILE}"
-rclone delete --min-age 28d "\${REMOTE_NAME}:\${REMOTE_PATH}" >> "\${LOG_FILE}" 2>&1
-# An alternative method similar to your docs:
-# rclone ls "\${REMOTE_NAME}:\${REMOTE_PATH}" | awk '{print \$2}' | sort -r | tail -n +5 | while read -r file; do
-#   rclone delete "\${REMOTE_NAME}:\${REMOTE_PATH}/\${file}" >> "\${LOG_FILE}" 2>&1
-# done
+rclone ls "\${REMOTE_NAME}:\${REMOTE_PATH}" | awk '{print \$2}' | sort -r | tail -n +5 | while read -r file; do
+  rclone delete "\${REMOTE_NAME}:\${REMOTE_PATH}/\${file}" >> "\${LOG_FILE}" 2>&1
+done
 
 echo "--- Backup Complete ---" >> "\${LOG_FILE}"
 
