@@ -324,6 +324,30 @@ echo "🌐 Your server should be available at: localhost:${MC_JPORT}"
 fi
 fi
 
+display_progress_bar() {
+    local duration=$1
+    local message="$2"
+    local width=50 # width of the progress bar in characters
+
+    echo "$message"
+    for i in $(seq 1 "$duration"); do
+        # Calculate percentage
+        percent=$((i * 100 / duration))
+        # Calculate how many '#' characters to show
+        filled=$((i * width / duration))
+        
+        # Create the bar string
+        bar=$(printf "%-${width}s" "" | tr ' ' '#')
+        bar_filled=$(printf "%-${filled}s" "${bar}")
+        bar_empty=$(printf "%-$((width - filled))s" "")
+        
+        # Print the bar and percentage, using \r to overwrite the line
+        printf "\r[%s%s] %d%%" "${bar_filled}" "${bar_empty}" "$percent"
+        sleep 1
+    done
+    # Print a newline at the end
+    echo ""
+}
 
 # === 5. Optional: Configure Geyser/Floodgate ===
 # Write configs if enabled
@@ -339,7 +363,7 @@ fi
     # Some hosting services change your Java port everytime you start the server and require the same port to be used for Bedrock. 
     # This option makes the Bedrock port the same as the Java port every time you start the server. 
     # This option is for the plugin version only. 
-    # clone-remote-port: false 
+    # clone-remote-port: false
 
 # === 6. Optional: Generate rclone/backup scripts ===
 # Add backup script to `scripts/` if enabled
