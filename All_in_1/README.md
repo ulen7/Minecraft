@@ -57,7 +57,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
 ---
 
 ## Backups
-- Runs every Sunday at 3:00 AM Toronto time
+- Runs every weekly according to a preset schedule
 - Keeps only the 4 most recent cloud backups
 - To enable:
   - Install rclone
@@ -67,7 +67,7 @@ An interactive Bash script that helps you configure and deploy a fully customize
     
     ```
     crontab -e
-    # Add this line (example)
+    # Add this line (to create backup every sunday at 3am Toronto time)
     0 3 * * 0 TZ=America/Toronto /home/user/minecraft_servers/myserver/scripts/backup.sh >> /home/user/minecraft_servers/myserver/scripts/cron.log 2>&1
     ```
 
@@ -82,6 +82,7 @@ If enabled:
 ---
 
 ## Planned Features
+- Allow user to select when to do the backups and how often.
 - Option to display and validate YAML before launch
 - Manual mod input for Fabric servers
 - Auto-add Geyser plugin for Spigot and Paper
