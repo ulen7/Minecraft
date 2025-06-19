@@ -257,7 +257,7 @@ fi
 
 cat >> docker-compose.yml <<EOF
     ports:
-      - \"${MC_JPORT}:${MC_JPORT}\""
+      - \"${MC_JPORT}:${MC_JPORT}\"
 EOF
 if [ "$USE_GEYSER" == "yes" ]; then
   echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
