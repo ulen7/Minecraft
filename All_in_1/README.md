@@ -82,14 +82,14 @@ If enabled:
 ---
 
 ## Planned Features
-- Other checks like port repetion and different name for backups
-- Allow user to select when to do the backups and how often.
-- Option to display and validate YAML before launch
-- Manual mod input for Fabric servers
-- Auto-add Geyser plugin for Spigot and Paper
-- Setup logging infrastructure
-- Support for custom profiles (saved configurations)
-- .env support for cleaner docker-compose templates
+- [ ] Other checks like port repetion and different name for backups
+- [ ] Allow user to select when to do the backups and how often.
+- [ ] Option to display and validate YAML before launch
+- [ ] Manual mod input for Fabric servers
+- [ ] Auto-add Geyser plugin for Spigot and Paper
+- [ ] Setup logging infrastructure
+- [ ] Support for custom profiles (saved configurations)
+- [ ] .env support for cleaner docker-compose templates
 
 ## License
 This project is released under the MIT License.
