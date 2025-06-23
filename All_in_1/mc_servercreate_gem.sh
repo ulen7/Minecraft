@@ -59,12 +59,12 @@ SCRIPT_LOG="$SERVER_DIR/minecraft_setup.log"
 echo "Generating server folder...
 
 mkdir -p "$SERVER_DIR" || {
-    echo "❌ Failed to create server directory: $SERVER_DIR"
+    echo "Failed to create server directory: $SERVER_DIR"
     exit 1
 }
 
 touch "$SCRIPT_LOG" || {
-    echo "❌ Cannot write to log file: $SCRIPT_LOG"
+    echo "Cannot write to log file: $SCRIPT_LOG"
     exit 1
 }
 
@@ -72,12 +72,12 @@ log() {
     echo "$(date +'%Y-%m-%d %H:%M:%S') - $*" >> "$SCRIPT_LOG"
 }
 
-log "=== Minecraft Setup Script Started ==="
+log "=== Minecraft Setup Started ==="
 log "Minecraft server $SERVER_NAME created"
 
 # === Minecraft Version ===
 while true; do
-    read -p "🧱 Enter the Minecraft version [${DEFAULT_VERSION}]: " MC_VERSION
+    read -p "Enter the Minecraft version [${DEFAULT_VERSION}]: " MC_VERSION
     MC_VERSION="${MC_VERSION:-$DEFAULT_VERSION}"
     if [[ "$MC_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
         log "Minecraft version set to version: $MC_VERSION"
@@ -89,19 +89,22 @@ while true; do
 done
 
 # === Server Type ===
-echo "🛠️ Select the server type:"
-PS3="➡️ Choose an option [default: ${DEFAULT_SERVER_TYPE}]: "
+echo "Select the server type:"
+PS3="Choose an option [default: ${DEFAULT_SERVER_TYPE}]: "
 options=("vanilla" "fabric" "spigot" "paper")
 select opt in "${options[@]}"; do
     if [[ -z "$REPLY" ]]; then # Check if user just pressed Enter
         SERVER_TYPE="$DEFAULT_SERVER_TYPE"
-        echo "ℹ️ Defaulting to: $SERVER_TYPE"
+        echo "Defaulting to: $SERVER_TYPE"
+        log "Minecraft type set to: $SERVER_TYPE"
         break
     elif [[ " ${options[*]} " == *" $opt "* ]]; then
         SERVER_TYPE="$opt"
+        log "Minecraft type set to: $SERVER_TYPE"
         break
     else
         echo "❌ Invalid option. Please choose a number from the list."
+        log "Failed to select a server type"
     fi
 done
 
@@ -118,11 +121,13 @@ while true; do
     if [[ "$MEMORY" =~ ^[0-9]+$ ]] && (( MEMORY >= 4 && MEMORY <= 32 )); then
         # If validation passes, append 'G' to the number and store it.
         MEMORY="${MEMORY}G"
+        log "$MEMORY selected for memory"
         # Exit the loop.
         break
     else
         # If validation fails, print an error and the loop will repeat.
         echo "❌ Please enter a whole number between 4 and 32."
+        log "$MEMORY is an invalid value to select for memory"
     fi
 done
 
@@ -131,11 +136,16 @@ while true; do
     read -p "🌐 Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_JPORT
     MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
     if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]; then
+        log "$MC_JPORT port selected for Java Minecraft"
         break
     else
         echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+        log "$MC_JPORT is an invalid port"
     fi
 done
+
+# === Optional Features - Geyser for Bedrock compatibility===
+USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
 
 # === Bedrock Port ===
 while true; do
@@ -159,32 +169,7 @@ while true; do
     fi
 done
 
-# === NEW SECTION: RCON Configuration ===
-ENABLE_RCON_WEB=$(prompt_yes_no "🖥️  Enable RCON Web UI for server console? (y/n) [${DEFAULT_ENABLE_RCON_WEB}]: " "$DEFAULT_ENABLE_RCON_WEB")
-if [ "$ENABLE_RCON_WEB" == "yes" ]; then
-    while true; do
-        read -s -p "🔑 Enter a strong RCON password (will not be displayed): " RCON_PASSWORD
-        echo
-        if [ -n "$RCON_PASSWORD" ]; then
-            break
-        else
-            echo "❌ Password cannot be empty."
-        fi
-    done
-    while true; do
-        read -p "🕸️  Enter the port for the RCON Web UI [${DEFAULT_RCON_WEB_PORT}]: " RCON_WEB_PORT
-        RCON_WEB_PORT="${RCON_WEB_PORT:-$DEFAULT_RCON_WEB_PORT}"
-        if [[ "$RCON_WEB_PORT" =~ ^[0-9]+$ ]] && [ "$RCON_WEB_PORT" -ge 1024 ] && [ "$RCON_WEB_PORT" -le 65535 ]; then
-            break
-        else
-            echo "❌ Invalid port. Please enter a number between 1024 and 65535."
-        fi
-    done
-fi
-
-
-# === Optional Features (using the helper function) ===
-USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
+# === Optional Features - Back-Ups===
 ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
 
 # === NEW: Tailscale Prompt & Secure Key Input ===
