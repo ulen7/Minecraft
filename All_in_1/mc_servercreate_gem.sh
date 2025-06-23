@@ -35,6 +35,7 @@ prompt_yes_no() {
     done
 }
 
+
 # === 2. Intro & User Prompts ===
 echo "📝 Let's configure your Minecraft server..."
 echo "Pressing Enter will select the default option shown in [brackets]."
@@ -50,14 +51,40 @@ while true; do
     fi
 done
 
+# Directory Creation
+
+SERVER_DIR="$HOME/minecraft_servers/$SERVER_NAME"
+SCRIPT_LOG="$SERVER_DIR/minecraft_setup.log"
+
+echo "Generating server folder...
+
+mkdir -p "$SERVER_DIR" || {
+    echo "❌ Failed to create server directory: $SERVER_DIR"
+    exit 1
+}
+
+touch "$SCRIPT_LOG" || {
+    echo "❌ Cannot write to log file: $SCRIPT_LOG"
+    exit 1
+}
+
+log() {
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - $*" >> "$SCRIPT_LOG"
+}
+
+log "=== Minecraft Setup Script Started ==="
+log "Minecraft server $SERVER_NAME created"
+
 # === Minecraft Version ===
 while true; do
     read -p "🧱 Enter the Minecraft version [${DEFAULT_VERSION}]: " MC_VERSION
     MC_VERSION="${MC_VERSION:-$DEFAULT_VERSION}"
     if [[ "$MC_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+        log "Minecraft version set to version: $MC_VERSION"
         break
     else
-        echo "❌ Invalid version format. Use format like '1.20.4' or '1.21'."
+        log "Invalid Minecraft version input: $MC_VERSION"
+        echo "Invalid version format. Use format like '1.20.4' or '1.21'."
     fi
 done
 
@@ -178,7 +205,6 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
 fi
 
 # === 3. Configuration Summary ===
-SERVER_DIR="$HOME/minecraft_servers/$SERVER_NAME"
 echo ""
 echo "📋 Configuration Summary:"
 printf "%-22s %s\n" "----------------------" "----------------------------------------"
@@ -210,15 +236,11 @@ if [ "$CONFIRMATION" == "no" ]; then
 fi
 
 # === 4. Directory Setup ===
-# Create folders:
-echo "Generating server folder..."
-mkdir -p "$SERVER_DIR"
 cd "$SERVER_DIR" || exit 1
 
 # === 5. Generate docker-compose.yml ===
 
 # --- NEW: Prepare environment blocks dynamically ---
-# This makes the main 'cat' command below much cleaner.
 
 # Initialize an empty variable for mod environment settings.
 MOD_ENV_BLOCK=""
