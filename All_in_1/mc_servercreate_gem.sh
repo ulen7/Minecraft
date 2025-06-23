@@ -41,20 +41,53 @@ echo "📝 Let's configure your Minecraft server..."
 echo "Pressing Enter will select the default option shown in [brackets]."
 
 # === Server Name ===
+RESERVED_NAMES=("con" "nul" "prn" "aux" "clock\$" "com1" "com2" "com3" "lpt1" "lpt2" "lpt3" "dev" "sys" "proc")
+
 while true; do
     read -p "📛 Enter a name for your server [${DEFAULT_SERVER_NAME}]: " SERVER_NAME
     SERVER_NAME="${SERVER_NAME:-$DEFAULT_SERVER_NAME}"
-    if [[ "$SERVER_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        break
+
+    # 1. Validate characters
+    if ! [[ "$SERVER_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "❌ Invalid name. Use only letters, numbers, underscores, or dashes."
+        continue
+    fi
+
+    # 2. Check against reserved/system names
+    for reserved in "${RESERVED_NAMES[@]}"; do
+        if [[ "${SERVER_NAME,,}" == "$reserved" ]]; then
+            echo "❌ '$SERVER_NAME' is a reserved system name. Please choose another."
+            continue 2
+        fi
+    done
+
+    # 3. Check for existing server folders, case-insensitively
+    SERVER_ROOT="$HOME/minecraft_servers"
+    if [ ! -d "$SERVER_ROOT" ]; then
+        mkdir -p "$SERVER_ROOT"
+    fi
+
+    existing_dirs=$(find "$SERVER_ROOT" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | tr '[:upper:]' '[:lower:]')
+
+    if echo "$existing_dirs" | grep -qx "${SERVER_NAME,,}"; then
+        echo "⚠️ A server with a similar name already exists: '$SERVER_NAME'"
+        while true; do
+            read -p "Type [r] to rename or [c] to cancel: " choice
+            case "${choice,,}" in
+                r) break ;;
+                c) echo "❌ Setup cancelled."; exit 1 ;;
+                *) echo "❌ Invalid choice. Please type 'r' to rename or 'c' to cancel." ;;
+            esac
+        done
     else
-        echo "❌ Invalid server name. Use only letters, numbers, underscores, or dashes."
+        break
     fi
 done
 
 # Directory Creation
 
-SERVER_DIR="$HOME/minecraft_servers/$SERVER_NAME"
-SCRIPT_LOG="$SERVER_DIR/minecraft_setup.log"
+SERVER_DIR="$SERVER_ROOT/$SERVER_NAME"
+SCRIPT_LOG="$SERVER_DIR/minecraft_name_setup.log"
 
 echo "Generating server folder...
 
