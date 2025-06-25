@@ -44,19 +44,19 @@ echo "Pressing Enter will select the default option shown in [brackets]."
 RESERVED_NAMES=("con" "nul" "prn" "aux" "clock\$" "com1" "com2" "com3" "lpt1" "lpt2" "lpt3" "dev" "sys" "proc")
 
 while true; do
-    read -p "📛 Enter a name for your server [${DEFAULT_SERVER_NAME}]: " SERVER_NAME
+    read -p "Enter a name for your server [${DEFAULT_SERVER_NAME}]: " SERVER_NAME
     SERVER_NAME="${SERVER_NAME:-$DEFAULT_SERVER_NAME}"
 
     # 1. Validate characters
     if ! [[ "$SERVER_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-        echo "❌ Invalid name. Use only letters, numbers, underscores, or dashes."
+        echo "Invalid name. Use only letters, numbers, underscores, or dashes."
         continue
     fi
 
     # 2. Check against reserved/system names
     for reserved in "${RESERVED_NAMES[@]}"; do
         if [[ "${SERVER_NAME,,}" == "$reserved" ]]; then
-            echo "❌ '$SERVER_NAME' is a reserved system name. Please choose another."
+            echo "'$SERVER_NAME' is a reserved system name. Please choose another."
             continue 2
         fi
     done
@@ -70,13 +70,13 @@ while true; do
     existing_dirs=$(find "$SERVER_ROOT" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | tr '[:upper:]' '[:lower:]')
 
     if echo "$existing_dirs" | grep -qx "${SERVER_NAME,,}"; then
-        echo "⚠️ A server with a similar name already exists: '$SERVER_NAME'"
+        echo "A server with a similar name already exists: '$SERVER_NAME'"
         while true; do
             read -p "Type [r] to rename or [c] to cancel: " choice
             case "${choice,,}" in
                 r) break ;;
-                c) echo "❌ Setup cancelled."; exit 1 ;;
-                *) echo "❌ Invalid choice. Please type 'r' to rename or 'c' to cancel." ;;
+                c) echo "Setup cancelled."; exit 1 ;;
+                *) echo "Invalid choice. Please type 'r' to rename or 'c' to cancel." ;;
             esac
         done
     else
@@ -144,7 +144,7 @@ done
 # === Memory Allocation ===
 while true; do
     # Prompt for a number only, indicating the valid range.
-    read -p "🧠 How much memory in GB to allocate (4-32) [${DEFAULT_MEMORY}]: " MEMORY
+    read -p "How much memory in GB to allocate (4-32) [${DEFAULT_MEMORY}]: " MEMORY
 
     # Apply the default value if the user just presses Enter.
     MEMORY="${MEMORY:-$DEFAULT_MEMORY}"
@@ -159,26 +159,26 @@ while true; do
         break
     else
         # If validation fails, print an error and the loop will repeat.
-        echo "❌ Please enter a whole number between 4 and 32."
+        echo "Please enter a whole number between 4 and 32."
         log "$MEMORY is an invalid value to select for memory"
     fi
 done
 
 # === Java Port ===
 while true; do
-    read -p "🌐 Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_JPORT
+    read -p "Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_JPORT
     MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
     if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]; then
         log "$MC_JPORT port selected for Java Minecraft"
         break
     else
-        echo "❌ Invalid port. Please enter a number between 1024 and 65535."
+        echo "Invalid port. Please enter a number between 1024 and 65535."
         log "$MC_JPORT is an invalid port"
     fi
 done
 
 # === Optional Features - Geyser for Bedrock compatibility===
-USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
+USE_GEYSER=$(prompt_yes_no "Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
 
 # === Bedrock Port ===
 if [ "$USE_GEYSER" == "yes" ]; then
@@ -217,7 +217,7 @@ done
 ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
 
 # === NEW: Tailscale Prompt & Secure Key Input ===
-ENABLE_TAILSCALE=$(prompt_yes_no "🔒 Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
+ENABLE_TAILSCALE=$(prompt_yes_no "Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     log "Tailscale Enabled, setting configuration for tailscale ..."
     echo "Please generate an Auth Key from your Tailscale Admin Console.For more information go here"
@@ -238,28 +238,21 @@ fi
 echo ""
 echo "📋 Configuration Summary:"
 printf "%-22s %s\n" "----------------------" "----------------------------------------"
-printf "📛 %-20s: %s\n" "Server Name" "$SERVER_NAME"
-printf "🧱 %-20s: %s\n" "Minecraft Version" "$MC_VERSION"
-printf "⚙️ %-20s: %s\n" "Server Type" "$SERVER_TYPE"
-printf "🧠 %-20s: %s\n" "Memory" "$MEMORY"
-printf "🌐 %-20s: %s\n" "Java Port" "$MC_JPORT"
-printf "🌉 %-20s: %s\n" "Enable Geyser" "$USE_GEYSER"
-printf "🌉 %-20s: %s\n" "SEED" "https://www.chunkbase.com/apps/seed-map#seed=""$MC_SEED"
+printf "%-20s: %s\n" "Server Name" "$SERVER_NAME"
+printf "%-20s: %s\n" "Minecraft Version" "$MC_VERSION"
+printf "⚙%-20s: %s\n" "Server Type" "$SERVER_TYPE"
+printf "%-20s: %s\n" "Memory" "$MEMORY"
+printf "%-20s: %s\n" "Java Port" "$MC_JPORT"
+printf "%-20s: %s\n" "Enable Geyser" "$USE_GEYSER"
+printf "%-20s: %s\n" "SEED" "https://www.chunkbase.com/apps/seed-map#seed=""$MC_SEED"
 if [ "$USE_GEYSER" == "yes" ]; then
-    printf "📱 %-20s: %s\n" "Bedrock Port" "$MC_BPORT"
+    printf "%-20s: %s\n" "Bedrock Port" "$MC_BPORT"
 fi
-printf "☁️ %-20s: %s\n" "Enable Backups" "$ENABLE_BACKUPS"
-printf "🔒 %-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
-# --- ADDED: RCON Summary ---
-printf "🖥️  %-20s: %s\n" "Enable RCON Web UI" "$ENABLE_RCON_WEB"
-if [ "$ENABLE_RCON_WEB" == "yes" ]; then
-    printf "🕸️  %-20s: %s\n" "RCON Web UI Port" "$RCON_WEB_PORT"
-fi
-printf "📂 %-20s: %s\n" "Install Directory" "$SERVER_DIR"
-printf "%-22s %s\n" "----------------------" "----------------------------------------"
+printf "%-20s: %s\n" "Enable Backups" "$ENABLE_BACKUPS"
+printf "%-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
 
 # === 4. Confirmation & Action ===
-CONFIRMATION=$(prompt_yes_no "✅ Proceed with this configuration? (y/n) [y]: " "y")
+CONFIRMATION=$(prompt_yes_no "Proceed with this configuration? (y/n) [y]: " "y")
 if [ "$CONFIRMATION" == "no" ]; then
     echo "❌ Setup cancelled by user."
     exit 1
