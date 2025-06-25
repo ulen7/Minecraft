@@ -136,7 +136,7 @@ select opt in "${options[@]}"; do
         log "Minecraft type set to: $SERVER_TYPE"
         break
     else
-        echo "❌ Invalid option. Please choose a number from the list."
+        echo "Invalid option. Please choose a number from the list."
         log "Failed to select a server type"
     fi
 done
@@ -181,24 +181,35 @@ done
 USE_GEYSER=$(prompt_yes_no "🌉 Enable Geyser for Bedrock cross-play? (y/n) [${DEFAULT_USE_GEYSER}]: " "$DEFAULT_USE_GEYSER")
 
 # === Bedrock Port ===
-while true; do
-    read -p "🌐 Enter the Bedorck Edition port [${DEFAULT_BPORT}]: " MC_BPORT
-    MC_BPORT="${MC_BPORT:-$DEFAULT_BPORT}"
-    if [[ "$MC_BPORT" =~ ^[0-9]+$ ]] && [ "$MC_BPORT" -ge 1024 ] && [ "$MC_BPORT" -le 65535 ]; then
-        break
-    else
-        echo "❌ Invalid port. Please enter a number between 1024 and 65535."
-    fi
-done
+if [ "$USE_GEYSER" == "yes" ]; then
+    log "Geyser enabled. Asking for Bedrock port..."
+
+    while true; do
+        read -p "Enter the Bedrock Edition port, if blank default port [${DEFAULT_BPORT}]: " MC_BPORT
+        MC_BPORT="${MC_BPORT:-$DEFAULT_BPORT}"
+        if [[ "$MC_BPORT" =~ ^[0-9]+$ ]] && [ "$MC_BPORT" -ge 1024 ] && [ "$MC_BPORT" -le 65535 ]; then
+            log "Valid Bedrock port chosen: $MC_BPORT"
+            echo "Bedrock Port chosen : $MC_PORT"
+            break
+        else
+            log "Invalid Bedrock port entered: $MC_BPORT"
+            echo "Invalid port. Please enter a number between 1024 and 65535."
+        fi
+    done
+else
+    log "Geyser not enabled. Skipping Bedrock port configuration."
+fi
 
 # === SEED ===
 while true; do
-    read -p "🌐 Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
+    read -p "Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
     MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
     if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 0 ] && [ "$MC_SEED" -le 9999999999999999999 ]; then
+        log "Seed chosen: $MC_SEED"
         break        
     else
-        echo "❌ Invalid Seed. Please enter a number between 0 and 9999999999999999999."
+        log "Invalid Seed chosen: $MC_SEED"
+        echo "Invalid Seed. Please enter a number between 0 and 9999999999999999999."
     fi
 done
 
@@ -208,6 +219,7 @@ ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAUL
 # === NEW: Tailscale Prompt & Secure Key Input ===
 ENABLE_TAILSCALE=$(prompt_yes_no "🔒 Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+    log "Tailscale Enabled, setting configuration for tailscale ..."
     echo "Please generate an Auth Key from your Tailscale Admin Console.For more information go here"
     echo "https://tailscale.com/kb/1085/auth-keys"
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
