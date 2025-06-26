@@ -204,19 +204,19 @@ if [ "$USE_GEYSER" == "yes" ]; then
         read -p "Enter the Bedrock Edition port, if blank default port [${DEFAULT_BPORT}]: " MC_BPORT
         MC_BPORT="${MC_BPORT:-$DEFAULT_BPORT}"
 
+        # First, validate the port format and range
         if [[ "$MC_BPORT" =~ ^[0-9]+$ ]] && [ "$MC_BPORT" -ge 1024 ] && [ "$MC_BPORT" -le 65535 ]; then
+            # If valid, then check for conflicts
             if [ "$MC_BPORT" == "$MC_JPORT" ] || ss -tuln | awk '{print $5}' | grep -Eq ":${MC_BPORT}\$"; then
                 echo "Bedrock port $MC_BPORT is either already in use or conflicts with Java port $MC_JPORT."
                 log "Bedrock port conflict: $MC_BPORT matches Java port or is in use."
             else
-                log "Bedrock port selected: $MC_BPORT"
-                break
-            fi
-            else
+                # Success! Port is valid and not in use.
                 log "Bedrock port selected: $MC_BPORT"
                 break
             fi
         else
+            # Failure! Port format/range is invalid.
             echo "Invalid port. Please enter a number between 1024 and 65535."
             log "Invalid Bedrock port entered: $MC_BPORT"
         fi
@@ -360,7 +360,7 @@ if [ "$SERVER_TYPE" == "fabric" ]; then
     # If Geyser is also enabled, add the Geyser-Fabric integration mod.
     if [ "$USE_GEYSER" == "yes" ]; then
         MODS_LIST="${MODS_LIST},geyser-fabric"
-        log "Mods added : $MOD_LIST"
+        log "Mods added : $MODS_LIST"
     fi
     
     # Create the final YAML block for the Modrinth projects.
@@ -508,7 +508,6 @@ if [ "$USE_GEYSER" == "yes" ]; then
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
         echo "Found Geyser config at: $GEYSER_CONFIG_PATH"
         log "Found Geyser config at: $GEYSER_CONFIG_PATH"
-        echo "Previewing Bedrock port change:"
         
         # WARNING: The following sed command is fragile and depends on the exact
         # format of Geyser's config.yml. If Geyser updates, this may break.
@@ -636,13 +635,6 @@ else
     echo "ERROR: Failed to create tarball." >> "\${LOG_FILE}"
     exit 1
 fi
-
-# --- Rotate Cloud Backups (Keep 4 most recent) ---
-echo "Rotating cloud backups..." >> "${LOG_FILE}"
-rclone ls "${REMOTE_NAME}:${REMOTE_PATH}" | awk '{print $2}' | sort -r | tail -n +5 | while read -r file; do
-    rclone delete "${REMOTE_NAME}:${REMOTE_PATH}/${file}" >> "${LOG_FILE}" 2>&1
-done
-
 
 # --- Upload to Cloud Storage ---
 echo "Uploading to \${REMOTE_NAME}..." >> "\${LOG_FILE}"
