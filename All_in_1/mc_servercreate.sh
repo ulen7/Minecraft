@@ -1,4 +1,11 @@
 #!/bin/bash
+set -euo pipefail
+
+# What this does:
+# -e: Exit immediately if a command exits with a non-zero status.
+# -u: Treat unset variables as an error when substituting.
+# -o pipefail: The return value of a pipeline is the status of the last command
+#              to exit with a non-zero status, or zero if no command fails.
 
 # Minecraft Server Setup Script
 # Maintained at: https://github.com/ulen7/Minecraft/edit/main/All_in_1/
@@ -39,7 +46,7 @@ prompt_yes_no() {
 
 
 # === 2. Intro & User Prompts ===
-echo "📝 Let's configure your Minecraft server..."
+echo "Let's configure your Minecraft server..."
 echo "Pressing Enter will select the default option shown in [brackets]."
 
 # === Server Name ===
@@ -206,7 +213,7 @@ if [ "$USE_GEYSER" == "yes" ]; then
                 break
             fi
             else
-                log "✅ Bedrock port selected: $MC_BPORT"
+                log "Bedrock port selected: $MC_BPORT"
                 break
             fi
         else
@@ -232,7 +239,7 @@ while true; do
 done
 
 # === Optional Features - Back-Ups===
-ENABLE_BACKUPS=$(prompt_yes_no "☁️ Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
+ENABLE_BACKUPS=$(prompt_yes_no "Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
 
 # === NEW: Tailscale Prompt & Secure Key Input ===
 ENABLE_TAILSCALE=$(prompt_yes_no "Enable remote access with Tailscale? (y/n) [${DEFAULT_ENABLE_TAILSCALE}]: " "$DEFAULT_ENABLE_TAILSCALE")
@@ -261,6 +268,19 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     
             log "Auth Key is valid."
             echo "Auth Key is valid."
+            #  Insert Auth Key to .env file for security purposes
+            echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
+            log "Created .env file to securely store your Tailscale key"
+            echo "Created .env file to securely store your Tailscale key."
+            # After creating the .env file
+            cat > "${SERVER_DIR}/.gitignore" <<EOF
+            # Ignore sensitive environment variables
+            .env
+            
+            # Ignore log files and state directories
+            *.log
+            tailscale-state/
+            EOF
             break
         else
             log "Invalid Auth Key."
@@ -274,7 +294,7 @@ fi
 
 # === 3. Configuration Summary ===
 echo ""
-echo "📋 Configuration Summary:"
+echo "Configuration Summary:"
 printf "%-22s %s\n" "----------------------" "----------------------------------------"
 printf "%-20s: %s\n" "Server Name" "$SERVER_NAME"
 printf "%-20s: %s\n" "Minecraft Version" "$MC_VERSION"
@@ -342,9 +362,11 @@ cat >> docker-compose.yml <<EOF
     ports:
       - \"${MC_JPORT}:${MC_JPORT}\"
 EOF
+
 if [ "$USE_GEYSER" == "yes" ]; then
   echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
 fi
+
 cat >> docker-compose.yml <<EOF
     environment:
       EULA: "TRUE"
@@ -362,7 +384,9 @@ cat >> docker-compose.yml <<EOF
 EOF
 
 # Append Tailscale service if needed
+# Append Tailscale service if needed
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+# Note: We are still using <<EOF to allow ${SERVER_NAME} to be expanded.
 cat >> docker-compose.yml <<EOF
 
   tailscale-sidecar:
@@ -370,7 +394,10 @@ cat >> docker-compose.yml <<EOF
     hostname: ${SERVER_NAME}
     container_name: ${SERVER_NAME}-tailscale-sidecar
     environment:
-      - TS_AUTHKEY=${TS_AUTHKEY}
+      # By using \${TS_AUTHKEY}, the shell writes the literal string "${TS_AUTHKEY}"
+      # to the file. Docker Compose will then substitute this with the value
+      # from the .env file when the container starts.
+      - TS_AUTHKEY=\${TS_AUTHKEY}
       - TS_EXTRA_ARGS=--advertise-tags=tag:minecraft-server
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
@@ -384,7 +411,7 @@ cat >> docker-compose.yml <<EOF
 EOF
 fi
 
-echo "✅ Success! Your 'docker-compose.yml' has been created in:"
+echo "Success! Your 'docker-compose.yml' has been created in:"
 echo "   $SERVER_DIR"
 echo ""
 echo "To start your server, run these commands:"
@@ -399,30 +426,24 @@ echo "    Check your Tailscale admin console for the new machine named '${SERVER
 echo "    You can connect in Minecraft using its Tailscale IP or hostname."
 else
 echo ""
-echo "    Your server should be available at: localhost:${MC_JPORT}"
+echo "    Your server should be available at: server_ip:${MC_JPORT}"
 fi
 
-# Display Bar snippet
-display_progress_bar() {
-    local duration=$1
-    local message="$2"
-    local width=50 # width of the progress bar in characters
-
-    echo "$message"
-    for i in $(seq 1 "$duration"); do
-        percent=$((i * 100 / duration))
-        filled=$((i * width / duration))
-
-        # Build the filled and empty sections of the bar
-        bar_filled=$(printf "%${filled}s" | tr ' ' '#')
-        bar_empty=$(printf "%$((width - filled))s" | tr ' ' '-')
-
-        printf "\r[%s%s] %d%%" "$bar_filled" "$bar_empty" "$percent"
-        sleep 1
-    done
-    echo ""
-}
-
+# Wait time to initialize Server
+echo "Waiting for the server to initialize... (This may take a few minutes)"
+TIMEOUT=300 # 5 minutes
+SECONDS=0
+while ! docker logs "$SERVER_NAME" 2>&1 | grep -q "Server marked as running"; do
+    if [ $SECONDS -gt $TIMEOUT ]; then
+        echo "🚨 Server did not start within the timeout period."
+        echo "Check the logs with: docker logs ${SERVER_NAME}"
+        exit 1
+    fi
+    printf "."
+    sleep 5
+done
+echo ""
+echo "✅ Server has initialized successfully."
 
 # === 6. Launch & Final Configuration ===
 
@@ -446,7 +467,7 @@ display_progress_bar 180 "Giving the server 3 minutes to initialize and generate
 
 # --- Configure Geyser ---
 if [ "$USE_GEYSER" == "yes" ]; then
-    echo "⚙️  Attempting to configure Geyser..."
+    echo "Attempting to configure Geyser..."
 
     PLUGINS_DIR="$SERVER_DIR/config"
     GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" | head -n 1)
@@ -454,7 +475,11 @@ if [ "$USE_GEYSER" == "yes" ]; then
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
         echo "Found Geyser config at: $GEYSER_CONFIG_PATH"
         
-        echo "🔍 Previewing Bedrock port change:"
+        echo "Previewing Bedrock port change:"
+        
+        # WARNING: The following sed command is fragile and depends on the exact
+        # format of Geyser's config.yml. If Geyser updates, this may break.
+        
         sed -nE "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
             /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/p
         }" "$GEYSER_CONFIG_PATH"
