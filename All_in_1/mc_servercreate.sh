@@ -229,7 +229,8 @@ fi
 while true; do
     read -p "Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
     MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
-    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 0 ] && [ "$MC_SEED" -le 9999999999999999999 ]; then
+    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
+       awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
         log "Seed chosen: $MC_SEED"
         break        
     else
