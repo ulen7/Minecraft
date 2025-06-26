@@ -32,7 +32,7 @@ prompt_yes_no() {
         case "$input" in
             y|yes) echo "yes"; return 0 ;;
             n|no)  echo "no";  return 0 ;;
-            *)     echo "❌ Please enter 'yes' or 'no'." ;;
+            *)     echo "Please enter 'yes' or 'no'." ;;
         esac
     done
 }
@@ -168,11 +168,18 @@ done
 
 # === Java Port ===
 while true; do
-    read -p "Enter the Java Edition port [${DEFAULT_JPORT}]: " MC_JPORT
+    read -p "Enter the Java Edition port (if blank default port: [${DEFAULT_JPORT}] will be used): " MC_JPORT
     MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
-    if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]; then
-        log "$MC_JPORT port selected for Java Minecraft"
-        break
+
+    if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]]; then
+        # Check if port is in use
+        if ss -tuln | awk '{print $5}' | grep -Eq ":${MC_JPORT}\$"; then
+            echo "Port $MC_JPORT is already in use by another service."
+            log "Port $MC_JPORT already in use."
+        else
+            log "$MC_JPORT port selected for Java Minecraft"
+            break
+        fi
     else
         echo "Invalid port. Please enter a number between 1024 and 65535."
         log "$MC_JPORT is an invalid port"
@@ -189,13 +196,22 @@ if [ "$USE_GEYSER" == "yes" ]; then
     while true; do
         read -p "Enter the Bedrock Edition port, if blank default port [${DEFAULT_BPORT}]: " MC_BPORT
         MC_BPORT="${MC_BPORT:-$DEFAULT_BPORT}"
+
         if [[ "$MC_BPORT" =~ ^[0-9]+$ ]] && [ "$MC_BPORT" -ge 1024 ] && [ "$MC_BPORT" -le 65535 ]; then
-            log "Valid Bedrock port chosen: $MC_BPORT"
-            echo "Bedrock Port chosen : $MC_PORT"
-            break
+            if [ "$MC_BPORT" == "$MC_JPORT" ] || ss -tuln | awk '{print $5}' | grep -Eq ":${MC_BPORT}\$"; then
+                echo "Bedrock port $MC_BPORT is either already in use or conflicts with Java port $MC_JPORT."
+                log "Bedrock port conflict: $MC_BPORT matches Java port or is in use."
+            else
+                log "Bedrock port selected: $MC_BPORT"
+                break
+            fi
+            else
+                log "✅ Bedrock port selected: $MC_BPORT"
+                break
+            fi
         else
-            log "Invalid Bedrock port entered: $MC_BPORT"
             echo "Invalid port. Please enter a number between 1024 and 65535."
+            log "Invalid Bedrock port entered: $MC_BPORT"
         fi
     done
 else
@@ -226,15 +242,35 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo "https://tailscale.com/kb/1085/auth-keys"
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
     while true; do
-        read -s -p "🔑 Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
+        read -s -p "Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
         echo
-        if [ -n "$TS_AUTHKEY" ]; then
+        if [ -z "$TS_AUTHKEY" ]; then
+            echo "Auth Key cannot be empty."
+            continue
+        fi
+    
+        log "Validating Tailscale Auth Key..."
+    
+        if docker run --rm --privileged \
+            --cap-add=NET_ADMIN \
+            --device /dev/net/tun \
+            -e TS_AUTHKEY="$TS_AUTHKEY" \
+            -e TS_STATE_DIR="/tmp/state" \
+            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1 |
+            grep -q "Logged in as"; then
+    
+            log "Auth Key is valid."
+            echo "Auth Key is valid."
             break
         else
-            echo "❌ Auth Key cannot be empty."
+            log "Invalid Auth Key."
+            echo "Invalid Tailscale Auth Key. Please check and try again."
+            unset TS_AUTHKEY
         fi
     done
 fi
+
+
 
 # === 3. Configuration Summary ===
 echo ""
@@ -256,7 +292,7 @@ printf "%-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
 # === 4. Confirmation & Action ===
 CONFIRMATION=$(prompt_yes_no "Proceed with this configuration? (y/n) [y]: " "y")
 if [ "$CONFIRMATION" == "no" ]; then
-    echo "❌ Setup cancelled by user."
+    echo "Setup cancelled by user."
     exit 1
 fi
 
@@ -358,12 +394,12 @@ echo "   docker-compose up -d"
 #Tailscale prompt
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
 echo ""
-echo "🔒 Tailscale is enabled. Your server will be available on your Tailnet."
-echo "   Check your Tailscale admin console for the new machine named '${SERVER_NAME}'."
-echo "   You can connect in Minecraft using its Tailscale IP or hostname."
+echo "    Tailscale is enabled. Your server will be available on your Tailnet."
+echo "    Check your Tailscale admin console for the new machine named '${SERVER_NAME}'."
+echo "    You can connect in Minecraft using its Tailscale IP or hostname."
 else
 echo ""
-echo "🌐 Your server should be available at: localhost:${MC_JPORT}"
+echo "    Your server should be available at: localhost:${MC_JPORT}"
 fi
 
 # Display Bar snippet
@@ -391,22 +427,22 @@ display_progress_bar() {
 # === 6. Launch & Final Configuration ===
 
 # Ask the user if they want to start the server now
-LAUNCH_NOW=$(prompt_yes_no "✅ Your files are generated. Would you like to start the server now? (y/n) [y]: " "y")
+LAUNCH_NOW=$(prompt_yes_no "Your files are generated. Would you like to start the server now? (y/n) [y]: " "y")
 
 if [ "$LAUNCH_NOW" == "no" ]; then
-    echo "👍 All set. You can start your server later by running the commands listed above."
+    echo "All set. You can start your server later by running the commands listed above."
     exit 0
 fi
 
 # --- Start the Docker Container ---
-echo "🚀 Starting the server in the background..."
+echo "Starting the server in the background..."
 if ! (cd "$SERVER_DIR" && docker compose up -d); then
-    echo "❌ Docker Compose failed to start. Please check for errors."
+    echo "Docker Compose failed to start. Please check for errors."
     exit 1
 fi
 
 # --- Wait for Server Initialization ---
-display_progress_bar 180 "⏳ Giving the server 3 minutes to initialize and generate files..."
+display_progress_bar 180 "Giving the server 3 minutes to initialize and generate files..."
 
 # --- Configure Geyser ---
 if [ "$USE_GEYSER" == "yes" ]; then
@@ -416,7 +452,7 @@ if [ "$USE_GEYSER" == "yes" ]; then
     GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" | head -n 1)
 
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
-        echo "✅ Found Geyser config at: $GEYSER_CONFIG_PATH"
+        echo "Found Geyser config at: $GEYSER_CONFIG_PATH"
         
         echo "🔍 Previewing Bedrock port change:"
         sed -nE "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
@@ -428,16 +464,16 @@ if [ "$USE_GEYSER" == "yes" ]; then
             sed -i -E "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
                 /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/
             }" "$GEYSER_CONFIG_PATH"
-            echo "✅ Updated Bedrock port to ${MC_BPORT}."
+            echo "Updated Bedrock port to ${MC_BPORT}."
 
-            echo "🔄 Restarting the Minecraft container to apply new settings..."
+            echo "Restarting the Minecraft container to apply new settings..."
             (cd "$SERVER_DIR" && docker compose restart "$SERVER_NAME")
-            echo "🎉 Geyser configuration complete!"
+            echo "Geyser configuration complete!"
         else
-            echo "❌ Change skipped. You may need to update the port manually later."
+            echo "Change skipped. You may need to update the port manually later."
         fi
     else
-        echo "⚠️  Could not find Geyser 'config.yml'. The server may need more time to start, or Geyser may not be installed correctly."
+        echo "    Could not find Geyser 'config.yml'. The server may need more time to start, or Geyser may not be installed correctly."
         echo "    You may need to set the Bedrock port to ${MC_BPORT} manually and restart the container."
     fi
 fi
@@ -450,21 +486,21 @@ if [ "$ENABLE_BACKUPS" == "yes" ]; then
 
     # Step 1: Check if rclone is installed
     if ! command -v rclone &> /dev/null; then
-        echo "⚠️  rclone is not installed, but is required for Google Drive backups."
+        echo "⚠rclone is not installed, but is required for Google Drive backups."
         INSTALL_RCLONE=$(prompt_yes_no "    Would you like to try and install it now? (requires sudo) (y/n) [y]: " "y")
         if [ "$INSTALL_RCLONE" == "yes" ]; then
             # Check for sudo permissions before attempting install
             if ! sudo -v; then
-                echo "❌ Sudo permissions are required to install packages. Please run the script with sudo or install rclone manually."
+                echo "Sudo permissions are required to install packages. Please run the script with sudo or install rclone manually."
                 exit 1
             fi
             echo "Installing rclone for Debian/Ubuntu..."
             sudo apt-get update && sudo apt-get install -y rclone
             if ! command -v rclone &> /dev/null; then
-                 echo "❌ rclone installation failed. Please install it manually."
+                 echo "rclone installation failed. Please install it manually."
                  exit 1
             fi
-            echo "✅ rclone installed successfully."
+            echo "rclone installed successfully."
         else
             echo "Skipping backup configuration. Please install rclone and re-run to set up backups."
             ENABLE_BACKUPS="no" # Disable backups for the rest of the script
@@ -478,10 +514,10 @@ if [ "$ENABLE_BACKUPS" == "yes" ]; then
             if [ -n "$RCLONE_REMOTE" ]; then
                 # Optional: Add a check to see if remote exists
                 if rclone listremotes | grep -q "^${RCLONE_REMOTE}:$"; then
-                    echo "✅ Found rclone remote: ${RCLONE_REMOTE}"
+                    echo "Found rclone remote: ${RCLONE_REMOTE}"
                     break
                 else
-                    echo "⚠️  Warning: rclone remote '${RCLONE_REMOTE}' not found. Please ensure it is configured correctly."
+                    echo "Warning: rclone remote '${RCLONE_REMOTE}' not found. Please ensure it is configured correctly."
                     # Ask user if they want to proceed anyway
                     PROCEED_ANYWAY=$(prompt_yes_no "    Continue anyway? (y/n) [y]: " "y")
                     if [ "$PROCEED_ANYWAY" == "yes" ]; then
@@ -489,7 +525,7 @@ if [ "$ENABLE_BACKUPS" == "yes" ]; then
                     fi
                 fi
             else
-                echo "❌ Remote name cannot be empty."
+                echo "Remote name cannot be empty."
             fi
         done
     fi
@@ -498,7 +534,7 @@ fi
 # === Generate Backup Script and Cron Job Info ===
 
 if [ "$ENABLE_BACKUPS" == "yes" ]; then
-    echo "⚙️  Generating backup script..."
+    echo "Generating backup script..."
     
     # Define paths for the backup script
     SCRIPTS_DIR="$SERVER_DIR/scripts"
@@ -563,7 +599,7 @@ EOF
 
     # Make the script executable
     chmod +x "$BACKUP_SCRIPT_PATH"
-    echo "✅ Backup script created at ${BACKUP_SCRIPT_PATH}"
+    echo "Backup script created at ${BACKUP_SCRIPT_PATH}"
 
     # --- Prepare Cron Job Instruction ---
     CRON_JOB="0 3 * * 0 TZ=America/Toronto ${BACKUP_SCRIPT_PATH} >> ${SCRIPTS_DIR}/cron.log 2>&1"
@@ -573,7 +609,7 @@ EOF
 
 ---
  backups:
-🔒 To automate your backups, add the following line to your system's crontab.
+   To automate your backups, add the following line to your system's crontab.
    Run 'crontab -e' and paste this line at the bottom:
 
    ${CRON_JOB}
@@ -592,4 +628,4 @@ if [ -n "$BACKUP_INSTRUCTION" ]; then
 fi
 
 echo "---"
-echo "✅ All tasks complete. Enjoy your server!"
+echo "All tasks complete. Enjoy your server!"
