@@ -672,7 +672,8 @@ backups:
    ${CRON_JOB}
 
    This will run the backup every Sunday at 3:00 AM Toronto time.
-EOF)
+EOF
+)
 
 fi
 
