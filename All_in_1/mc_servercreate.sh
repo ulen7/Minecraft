@@ -257,34 +257,48 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
         fi
     
         log "Validating Tailscale Auth Key..."
-    
-        if docker run --rm --privileged \
+        echo "Validating key with Tailscale... this may take a moment."
+        
+        # Capture all output (stdout and stderr) into a variable
+        VALIDATION_OUTPUT=$(docker run --rm --privileged \
             --cap-add=NET_ADMIN \
             --device /dev/net/tun \
             -e TS_AUTHKEY="$TS_AUTHKEY" \
             -e TS_STATE_DIR="/tmp/state" \
-            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1 |
-            grep -q "Logged in as"; then
-    
+            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1)
+        
+        # Check the output for the success message
+        if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
             log "Auth Key is valid."
             echo "Auth Key is valid."
-            #  Insert Auth Key to .env file for security purposes
+        
+            # --- SUCCESS CASE ---
+            # Create .env file for security
             echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
-            log "Created .env file to securely store your Tailscale key"
-            echo "Created .env file to securely store your Tailscale key."
-            # After creating the .env file
+            log "Created .env file to securely store your Tailscale key."
+            echo "Created .env file for secure key storage."
+        
+            # Create .gitignore file
             cat > "${SERVER_DIR}/.gitignore" <<EOF
-            # Ignore sensitive environment variables
-            .env
-            
-            # Ignore log files and state directories
-            *.log
-            tailscale-state/
-            EOF
+        # Ignore sensitive environment variables
+        .env
+        
+        # Ignore log files and state directories
+        *.log
+        tailscale-state/
+        EOF
+            log "Created .gitignore file."
             break
         else
-            log "Invalid Auth Key."
-            echo "Invalid Tailscale Auth Key. Please check and try again."
+            # --- FAILURE CASE ---
+            log "Invalid Auth Key or Docker error occurred."
+            echo "Validation failed. Please check the key and try again."
+        
+            # Provide more specific feedback if possible
+            if echo "$VALIDATION_OUTPUT" | grep -q "Cannot connect to the Docker daemon"; then
+                log "Docker daemon not running."
+                echo "Error: Could not connect to Docker. Is the Docker daemon running?"
+            fi
             unset TS_AUTHKEY
         fi
     done
@@ -293,33 +307,45 @@ fi
 
 
 # === 3. Configuration Summary ===
+log "Configuration Summary"
 echo ""
 echo "Configuration Summary:"
 printf "%-22s %s\n" "----------------------" "----------------------------------------"
 printf "%-20s: %s\n" "Server Name" "$SERVER_NAME"
+log "Server Name $SERVER_NAME"
 printf "%-20s: %s\n" "Minecraft Version" "$MC_VERSION"
+log "Minecraft Version $MC_VERSION"
 printf "⚙%-20s: %s\n" "Server Type" "$SERVER_TYPE"
+log "Server Type $SERVER_TYPE"
 printf "%-20s: %s\n" "Memory" "$MEMORY"
+log "Memory allocated $MEMORY"
 printf "%-20s: %s\n" "Java Port" "$MC_JPORT"
+log "Port for Java MC instances: $MC_JPORT"
 printf "%-20s: %s\n" "Enable Geyser" "$USE_GEYSER"
+log "Is Geyser enabled? $USE_GEYSER"
 printf "%-20s: %s\n" "SEED" "https://www.chunkbase.com/apps/seed-map#seed=""$MC_SEED"
 if [ "$USE_GEYSER" == "yes" ]; then
     printf "%-20s: %s\n" "Bedrock Port" "$MC_BPORT"
+    log "Port for Bedrock MC instances: $MC_BPORT"
 fi
 printf "%-20s: %s\n" "Enable Backups" "$ENABLE_BACKUPS"
+log "Are Backups enables? $ENABLE_BACKUPS"
 printf "%-20s: %s\n" "Enable Tailscale" "$ENABLE_TAILSCALE"
+log "Is Tailscale Enabled? $ENABLE_TAILSCALE"
 
 # === 4. Confirmation & Action ===
 CONFIRMATION=$(prompt_yes_no "Proceed with this configuration? (y/n) [y]: " "y")
 if [ "$CONFIRMATION" == "no" ]; then
+    log "Setup cancelled by user"
     echo "Setup cancelled by user."
     exit 1
 fi
 
-# === 4. Directory Setup ===
 cd "$SERVER_DIR" || exit 1
 
 # === 5. Generate docker-compose.yml ===
+
+log "Generating docker-compose file in $SERVER_DIR"
 
 # --- NEW: Prepare environment blocks dynamically ---
 
@@ -334,6 +360,7 @@ if [ "$SERVER_TYPE" == "fabric" ]; then
     # If Geyser is also enabled, add the Geyser-Fabric integration mod.
     if [ "$USE_GEYSER" == "yes" ]; then
         MODS_LIST="${MODS_LIST},geyser-fabric"
+        log "Mods added : $MOD_LIST"
     fi
     
     # Create the final YAML block for the Modrinth projects.
@@ -411,22 +438,45 @@ cat >> docker-compose.yml <<EOF
 EOF
 fi
 
-echo "Success! Your 'docker-compose.yml' has been created in:"
+echo "Success! Your 'docker-compose.yml' has been created in: $SERVER_DIR"
+log "Success! Your 'docker-compose.yml' has been created in: $SERVER_DIR"
+
 echo "   $SERVER_DIR"
 echo ""
-echo "To start your server, run these commands:"
+echo "To manually start your server, run these commands:"
 echo "   cd $SERVER_DIR"
 echo "   docker-compose up -d"
+
+# === 6. Launch & Final Configuration ===
+
+# Ask the user if they want to start the server now
+LAUNCH_NOW=$(prompt_yes_no "Your files are generated. Would you like to start the server now? (y/n) [y]: " "y")
+
+if [ "$LAUNCH_NOW" == "no" ]; then
+    echo "All set. You can start your server later by running the commands listed above."
+    log "Docker container will be launched manually"
+    exit 0
+fi
+
+# --- Start the Docker Container ---
+echo "Starting the server in the background..."
+if ! (cd "$SERVER_DIR" && docker compose up -d); then
+    echo "Docker Compose failed to start. Please check for errors with docker logs ${SERVER_NAME}."
+    exit 1
+fi
 
 #Tailscale prompt
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
 echo ""
 echo "    Tailscale is enabled. Your server will be available on your Tailnet."
-echo "    Check your Tailscale admin console for the new machine named '${SERVER_NAME}'."
+echo "    Check your Tailscale admin console at https://login.tailscale.com/admin/machines for the new machine named '${SERVER_NAME}'."
 echo "    You can connect in Minecraft using its Tailscale IP or hostname."
 else
 echo ""
-echo "    Your server should be available at: server_ip:${MC_JPORT}"
+echo "    Your server should be available at: hostname:${MC_JPORT} for Java instances"
+if [ "$USE_GEYSER" == "yes" ]; then
+  echo "    Your server should be available at: hostname:${MC_BPORT} for Bedrock instances"
+fi
 fi
 
 # Wait time to initialize Server
@@ -436,6 +486,7 @@ SECONDS=0
 while ! docker logs "$SERVER_NAME" 2>&1 | grep -q "Server marked as running"; do
     if [ $SECONDS -gt $TIMEOUT ]; then
         echo "🚨 Server did not start within the timeout period."
+        log "Error starting server, check the logs for the docker container with: docker logs ${SERVER_NAME}"
         echo "Check the logs with: docker logs ${SERVER_NAME}"
         exit 1
     fi
@@ -443,52 +494,31 @@ while ! docker logs "$SERVER_NAME" 2>&1 | grep -q "Server marked as running"; do
     sleep 5
 done
 echo ""
-echo "✅ Server has initialized successfully."
+echo "Server has initialized successfully."
+log "Server has initialized successfully."
 
-# === 6. Launch & Final Configuration ===
-
-# Ask the user if they want to start the server now
-LAUNCH_NOW=$(prompt_yes_no "Your files are generated. Would you like to start the server now? (y/n) [y]: " "y")
-
-if [ "$LAUNCH_NOW" == "no" ]; then
-    echo "All set. You can start your server later by running the commands listed above."
-    exit 0
-fi
-
-# --- Start the Docker Container ---
-echo "Starting the server in the background..."
-if ! (cd "$SERVER_DIR" && docker compose up -d); then
-    echo "Docker Compose failed to start. Please check for errors."
-    exit 1
-fi
-
-# --- Wait for Server Initialization ---
-display_progress_bar 180 "Giving the server 3 minutes to initialize and generate files..."
 
 # --- Configure Geyser ---
 if [ "$USE_GEYSER" == "yes" ]; then
     echo "Attempting to configure Geyser..."
-
+    log "Attempting to configure Geyser..."
     PLUGINS_DIR="$SERVER_DIR/config"
     GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" | head -n 1)
 
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
         echo "Found Geyser config at: $GEYSER_CONFIG_PATH"
-        
+        log "Found Geyser config at: $GEYSER_CONFIG_PATH"
         echo "Previewing Bedrock port change:"
         
         # WARNING: The following sed command is fragile and depends on the exact
         # format of Geyser's config.yml. If Geyser updates, this may break.
-        
-        sed -nE "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
-            /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/p
-        }" "$GEYSER_CONFIG_PATH"
 
         CONFIRM_SED=$(prompt_yes_no "Apply this change to the config file? (y/n) [y]: " "y")
         if [ "$CONFIRM_SED" == "yes" ]; then
             sed -i -E "/^[[:space:]]*bedrock:[[:space:]]*$/,/^[[:alpha:]]/ {
                 /^[[:space:]]*port:[[:space:]]*[0-9]+[[:space:]]*$/ s/[0-9]+/${MC_BPORT}/
             }" "$GEYSER_CONFIG_PATH"
+            log "Updated Bedrock port to ${MC_BPORT}."
             echo "Updated Bedrock port to ${MC_BPORT}."
 
             echo "Restarting the Minecraft container to apply new settings..."
@@ -496,10 +526,12 @@ if [ "$USE_GEYSER" == "yes" ]; then
             echo "Geyser configuration complete!"
         else
             echo "Change skipped. You may need to update the port manually later."
+            log "Change skipped. Port my need to be changed manually later."
         fi
     else
         echo "    Could not find Geyser 'config.yml'. The server may need more time to start, or Geyser may not be installed correctly."
         echo "    You may need to set the Bedrock port to ${MC_BPORT} manually and restart the container."
+        log "Could not find Geyser, port to be set manually later"
     fi
 fi
 
@@ -508,10 +540,11 @@ fi
 # === NEW: Backup Configuration ===
 if [ "$ENABLE_BACKUPS" == "yes" ]; then
     echo "--- Configuring Backups ---"
+    log "Initializing Backups configuration...."
 
     # Step 1: Check if rclone is installed
     if ! command -v rclone &> /dev/null; then
-        echo "⚠rclone is not installed, but is required for Google Drive backups."
+        echo "rclone is not installed, but is required for Google Drive backups."
         INSTALL_RCLONE=$(prompt_yes_no "    Would you like to try and install it now? (requires sudo) (y/n) [y]: " "y")
         if [ "$INSTALL_RCLONE" == "yes" ]; then
             # Check for sudo permissions before attempting install
