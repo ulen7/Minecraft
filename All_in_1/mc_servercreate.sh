@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# A script to generate a docker-compose.yml for a Minecraft server.
+# Minecraft Server Setup Script
+# Maintained at: https://github.com/ulen7/Minecraft/edit/main/All_in_1/
+# Version: 1.0.0
 
 # === 0. Constants & Defaults ===
 DEFAULT_SERVER_NAME="mc_server"
