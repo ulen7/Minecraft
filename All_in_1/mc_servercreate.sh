@@ -98,7 +98,7 @@ done
 SERVER_DIR="$SERVER_ROOT/$SERVER_NAME"
 SCRIPT_LOG="$SERVER_DIR/minecraft_name_setup.log"
 
-echo "Generating server folder...
+echo "Generating server folder..."
 
 mkdir -p "$SERVER_DIR" || {
     echo "Failed to create server directory: $SERVER_DIR"
