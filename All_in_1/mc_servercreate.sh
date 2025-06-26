@@ -540,14 +540,16 @@ fi
 # === NEW: Backup Configuration ===
 if [ "$ENABLE_BACKUPS" == "yes" ]; then
     echo "--- Configuring Backups ---"
-    log "Initializing Backups configuration...."
+    log "Attempting to setup the backups configuration ..."
 
     # Step 1: Check if rclone is installed
     if ! command -v rclone &> /dev/null; then
         echo "rclone is not installed, but is required for Google Drive backups."
+        log "rclone is not installed, but is required for Google Drive backups."
         INSTALL_RCLONE=$(prompt_yes_no "    Would you like to try and install it now? (requires sudo) (y/n) [y]: " "y")
         if [ "$INSTALL_RCLONE" == "yes" ]; then
             # Check for sudo permissions before attempting install
+            log "Attempting to install rclone"
             if ! sudo -v; then
                 echo "Sudo permissions are required to install packages. Please run the script with sudo or install rclone manually."
                 exit 1
@@ -556,11 +558,14 @@ if [ "$ENABLE_BACKUPS" == "yes" ]; then
             sudo apt-get update && sudo apt-get install -y rclone
             if ! command -v rclone &> /dev/null; then
                  echo "rclone installation failed. Please install it manually."
+                 log "Failed to install rclone it should be installed manually"
                  exit 1
             fi
             echo "rclone installed successfully."
+            log "rclone installed successfully."
         else
             echo "Skipping backup configuration. Please install rclone and re-run to set up backups."
+            log "Skipping backup configuration"
             ENABLE_BACKUPS="no" # Disable backups for the rest of the script
         fi
     fi
@@ -592,6 +597,7 @@ fi
 # === Generate Backup Script and Cron Job Info ===
 
 if [ "$ENABLE_BACKUPS" == "yes" ]; then
+    log "Generating backup script"
     echo "Generating backup script..."
     
     # Define paths for the backup script
@@ -655,6 +661,7 @@ echo "--- Backup Complete ---" >> "\${LOG_FILE}"
 
 EOF
 
+    log "Backup Script created succesfully"
     # Make the script executable
     chmod +x "$BACKUP_SCRIPT_PATH"
     echo "Backup script created at ${BACKUP_SCRIPT_PATH}"
@@ -686,4 +693,5 @@ if [ -n "$BACKUP_INSTRUCTION" ]; then
 fi
 
 echo "---"
+log "All taks completed"
 echo "All tasks complete. Enjoy your server!"
