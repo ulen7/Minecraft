@@ -388,7 +388,7 @@ fi
 
 cat >> docker-compose.yml <<EOF
     ports:
-      - \"${MC_JPORT}:${MC_JPORT}\"
+      - "${MC_JPORT}:${MC_JPORT}"
 EOF
 
 if [ "$USE_GEYSER" == "yes" ]; then
@@ -400,6 +400,11 @@ cat >> docker-compose.yml <<EOF
       EULA: "TRUE"
       VERSION: "${MC_VERSION}"
       TYPE: "${SERVER_TYPE^^}"
+      SERVER_PORT: "${MC_JPORT}"
+      MAX_PLAYERS: "4"
+      MODE: "creative"
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
       MEMORY: "${MEMORY}"
       SEED: "${MC_SEED}"
 EOF
