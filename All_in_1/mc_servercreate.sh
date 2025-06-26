@@ -178,7 +178,7 @@ while true; do
     read -p "Enter the Java Edition port (if blank default port: [${DEFAULT_JPORT}] will be used): " MC_JPORT
     MC_JPORT="${MC_JPORT:-$DEFAULT_JPORT}"
 
-    if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]]; then
+    if [[ "$MC_JPORT" =~ ^[0-9]+$ ]] && [ "$MC_JPORT" -ge 1024 ] && [ "$MC_JPORT" -le 65535 ]; then
         # Check if port is in use
         if ss -tuln | awk '{print $5}' | grep -Eq ":${MC_JPORT}\$"; then
             echo "Port $MC_JPORT is already in use by another service."
@@ -279,14 +279,14 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
             echo "Created .env file for secure key storage."
         
             # Create .gitignore file
-            cat > "${SERVER_DIR}/.gitignore" <<EOF
-        # Ignore sensitive environment variables
-        .env
-        
-        # Ignore log files and state directories
-        *.log
-        tailscale-state/
-        EOF
+                cat > "${SERVER_DIR}/.gitignore" <<EOF
+# Ignore sensitive environment variables
+.env
+
+# Ignore log files and state directories
+*.log
+tailscale-state/
+EOF
             log "Created .gitignore file."
             break
         else
@@ -665,15 +665,15 @@ EOF
     BACKUP_INSTRUCTION=$(cat <<EOF
 
 ---
- backups:
+backups:
    To automate your backups, add the following line to your system's crontab.
    Run 'crontab -e' and paste this line at the bottom:
 
    ${CRON_JOB}
 
    This will run the backup every Sunday at 3:00 AM Toronto time.
-EOF
-)
+EOF)
+
 fi
 
 
