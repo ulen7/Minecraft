@@ -449,11 +449,11 @@ fi
 
 cat >> docker-compose.yml <<EOF
     ports:
-      - \"${MC_JPORT}:${MC_JPORT}"
+      - "${MC_JPORT}:${MC_JPORT}"
 EOF
 
 if [ "$USE_GEYSER" == "yes" ]; then
-  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp"" >> docker-compose.yml
+  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
 fi
 
 cat >> docker-compose.yml <<EOF
@@ -462,10 +462,15 @@ cat >> docker-compose.yml <<EOF
       VERSION: "${MC_VERSION}"
       TYPE: "${SERVER_TYPE^^}"
       MEMORY: "${MEMORY}"
+      SERVER_PORT: "${MC_JPORT}"
+      MAX_PLAYERS: "4"
+      MODE: "creative"
+      PVP: "false"
+      RESOURCE_PACK_ENFORCE: "TRUE"
 EOF
 
 # Only add SEED if it's not empty
-if [ -n "$MC_SEED" ]; then
+if [ "$MC_SEED" != "" ]; then
   echo "      SEED: \"${MC_SEED}\"" >> docker-compose.yml
 fi
 
@@ -534,7 +539,7 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo "   Connect using its Tailscale IP or hostname in Minecraft."
 else
     echo ""
-    echo "🎮 Your server should be available at:"
+    echo "   Your server should be available at:"
     echo "   Java Edition: $(hostname):${MC_JPORT}"
     if [ "$USE_GEYSER" == "yes" ]; then
         echo "   Bedrock Edition: $(hostname):${MC_BPORT}"
@@ -543,7 +548,7 @@ fi
 
 # Wait for server initialization with better feedback
 echo ""
-echo "⏳ Waiting for server to initialize... (This may take a few minutes)"
+echo "Waiting for server to initialize... (This may take a few minutes)"
 TIMEOUT=300 # 5 minutes
 SECONDS=0
 DOTS=0
@@ -551,7 +556,7 @@ DOTS=0
 while ! docker logs "$SERVER_NAME" 2>&1 | grep -q "Server marked as running"; do
     if [ $SECONDS -gt $TIMEOUT ]; then
         echo ""
-        echo "🚨 Server did not start within the timeout period."
+        echo "Server did not start within the timeout period."
         log "ERROR" "Server startup timeout. Check logs: docker logs ${SERVER_NAME}"
         echo "   Check the logs with: docker logs ${SERVER_NAME}"
         exit 1
