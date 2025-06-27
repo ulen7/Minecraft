@@ -1,4 +1,5 @@
 #!/bin/bash
+test
 set -euo pipefail
 
 # What this does:
