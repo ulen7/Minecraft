@@ -737,4 +737,42 @@ fi
 log_backup "Rotating local backups (keeping \${MAX_LOCAL_BACKUPS})..."
 ls -1t "\$BACKUP_DIR"/*.tar.gz 2>/dev/null | tail -n +\$((MAX_LOCAL_BACKUPS + 1)) | xargs -r rm
 
-# --- Rotate
+echo "--- Backup Complete ---" >> "\${LOG_FILE}"
+
+EOF
+
+    log "Backup Script created succesfully"
+    # Make the script executable
+    chmod +x "$BACKUP_SCRIPT_PATH"
+    echo "Backup script created at ${BACKUP_SCRIPT_PATH}"
+
+    # --- Prepare Cron Job Instruction ---
+    CRON_JOB="0 3 * * 0 TZ=America/Toronto ${BACKUP_SCRIPT_PATH} >> ${SCRIPTS_DIR}/cron.log 2>&1"
+    
+    # Store the cron instruction in a variable to display at the end
+    BACKUP_INSTRUCTION=$(cat <<EOF
+
+---
+backups:
+   To automate your backups, add the following line to your system's crontab.
+   Run 'crontab -e' and paste this line at the bottom:
+
+   ${CRON_JOB}
+
+   This will run the backup every Sunday at 3:00 AM Toronto time.
+EOF
+)
+
+fi
+
+
+# === 8. Completion Message ===
+
+# Display the backup instruction if it was generated
+if [ -n "$BACKUP_INSTRUCTION" ]; then
+    echo "$BACKUP_INSTRUCTION"
+fi
+
+echo "---"
+log "All taks completed"
+echo "All tasks complete. Enjoy your server!"
