@@ -331,17 +331,12 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
         log "INFO" "Validating Tailscale Auth Key..."
         show_progress "Validating key with Tailscale"
         
-        set +e  # Don't exit on error temporarily
-        docker run --rm --privileged \
-            --cap-add=NET_ADMIN \
-            --device /dev/net/tun \
-            -e TS_AUTHKEY="$TS_AUTHKEY" \
-            -e TS_STATE_DIR="/tmp/state" \
-            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral > /tmp/tailscale_output 2>&1
-        DOCKER_EXIT_CODE=$?
-        VALIDATION_OUTPUT=$(cat /tmp/tailscale_output)
-        rm -f /tmp/tailscale_output
-        set -e  # Re-enable exit on error
+        # Just validate the format and skip the Docker test
+        if [[ ! "$TS_AUTHKEY" =~ ^tskey-auth-[a-zA-Z0-9]+-[a-zA-Z0-9]+$ ]]; then
+            echo "Invalid Auth Key format. Please check your key."
+            continue
+        fi
+        log "INFO" "Auth Key format is valid."
         
         # Check the output for the success message
         if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
