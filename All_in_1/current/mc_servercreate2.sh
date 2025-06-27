@@ -326,30 +326,26 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
             echo "Auth Key cannot be empty."
             continue
         fi
-    
+
         log "INFO" "Validating Tailscale Auth Key..."
         show_progress "Validating key with Tailscale"
-        
-        # Capture all output (stdout and stderr) into a variable
+
         VALIDATION_OUTPUT=$(docker run --rm --privileged \
             --cap-add=NET_ADMIN \
             --device /dev/net/tun \
             -e TS_AUTHKEY="$TS_AUTHKEY" \
             -e TS_STATE_DIR="/tmp/state" \
             tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1)
-        
-        # Check the output for the success message
+
         if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
             log "INFO" "Auth Key is valid."
-            echo "✓ Auth Key is valid."
-        
-            # Create .env file for security with restricted permissions
+            echo "Auth Key is valid."
+
             echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
             chmod 600 "${SERVER_DIR}/.env"
             log "INFO" "Created .env file with secure permissions."
-            echo "✓ Created .env file for secure key storage."
-        
-            # Create .gitignore file
+            echo "Created .env file for secure key storage."
+
             cat > "${SERVER_DIR}/.gitignore" <<EOF
 # Ignore sensitive environment variables
 .env
@@ -365,15 +361,8 @@ EOF
             log "INFO" "Created .gitignore file."
             break
         else
-            log "ERROR" "Invalid Auth Key or Docker error occurred."
-            echo "✗ Validation failed. Please check the key and try again."
-        
-            # Provide more specific feedback if possible
-            if echo "$VALIDATION_OUTPUT" | grep -q "Cannot connect to the Docker daemon"; then
-                log "ERROR" "Docker daemon not running."
-                echo "Error: Could not connect to Docker. Is the Docker daemon running?"
-            fi
-            unset TS_AUTHKEY
+            log "ERROR" "Invalid Tailscale Auth Key."
+            echo "Invalid Auth Key. Please try again."
         fi
     done
 fi
