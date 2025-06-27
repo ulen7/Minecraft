@@ -308,19 +308,6 @@ while true; do
         echo "Invalid Seed. Please enter a number between 0 and 9999999999999999999, or leave blank for random."
     fi
 done
-# === SEED ===
-while true; do
-    read -p "Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
-    MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
-    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
-        awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
-        log "Seed chosen: $MC_SEED"
-        break        
-    else
-        log "Invalid Seed chosen: $MC_SEED"
-        echo "Invalid Seed. Please enter a number between 0 and 9999999999999999999."
-    fi
-done
 
 # === Optional Features - Back-Ups===
 ENABLE_BACKUPS=$(prompt_yes_no "Enable automatic backups? (y/n) [${DEFAULT_ENABLE_BACKUPS}]: " "$DEFAULT_ENABLE_BACKUPS")
@@ -340,21 +327,22 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
             echo "Auth Key cannot be empty."
             continue
         fi
-        set +e  # Don't exit on error temporarily
+        
         log "INFO" "Validating Tailscale Auth Key..."
         show_progress "Validating key with Tailscale"
         
-        # Capture all output (stdout and stderr) into a variable
-        VALIDATION_OUTPUT=$(docker run --rm --privileged \
+        set +e  # Don't exit on error temporarily
+        docker run --rm --privileged \
             --cap-add=NET_ADMIN \
             --device /dev/net/tun \
             -e TS_AUTHKEY="$TS_AUTHKEY" \
             -e TS_STATE_DIR="/tmp/state" \
-            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1)
-            
+            tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral > /tmp/tailscale_output 2>&1
+        DOCKER_EXIT_CODE=$?
+        VALIDATION_OUTPUT=$(cat /tmp/tailscale_output)
+        rm -f /tmp/tailscale_output
         set -e  # Re-enable exit on error
-        echo "DEBUG: Docker exit code: $DOCKER_EXIT_CODE"
-        echo "DEBUG: Validation output: $VALIDATION_OUTPUT"
+        
         # Check the output for the success message
         if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
             log "INFO" "Auth Key is valid."
@@ -383,7 +371,7 @@ EOF
             break
         else
             log "ERROR" "Invalid Auth Key or Docker error occurred."
-            echo "✗ Validation failed. Please check the key and try again."
+            echo "Validation failed. Please check the key and try again."
         
             # Provide more specific feedback if possible
             if echo "$VALIDATION_OUTPUT" | grep -q "Cannot connect to the Docker daemon"; then
