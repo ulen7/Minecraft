@@ -14,7 +14,7 @@ set -euo pipefail
 # === 0. Constants & Defaults ===
 DEFAULT_SERVER_NAME="mc_server"
 DEFAULT_VERSION="1.21"
-DEFAULT_SERVER_TYPE="fabric"
+DEFAULT_SERVER_TYPE="2"
 DEFAULT_MEMORY="4"
 DEFAULT_JPORT="25565"
 DEFAULT_BPORT="19132"
@@ -250,7 +250,7 @@ while true; do
     MEMORY="${MEMORY:-$DEFAULT_MEMORY}"
 
     if [[ "$MEMORY" =~ ^[0-9]+$ ]] && (( MEMORY >= 4 && MEMORY <= 32 )); then
-        MEMORY="${MEMORY}G"
+        MEMORY="${MEMORY}"
         log "INFO" "$MEMORY selected for memory"
         break
     else
@@ -299,12 +299,26 @@ while true; do
     if [[ -z "$MC_SEED" ]]; then
         log "INFO" "Random seed will be used"
         break
-    elif [[ "$MC_SEED" =~ ^[0-9]+$ ]] && [ "$MC_SEED" -ge 0 ] && [ "$MC_SEED" -le 9999999999999999999 ]; then
-        log "INFO" "Seed chosen: $MC_SEED"
-        break        
+    eliif [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
+       awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
+        log "Seed chosen: $MC_SEED"
+        break      
     else
         log "WARN" "Invalid Seed chosen: $MC_SEED"
         echo "Invalid Seed. Please enter a number between 0 and 9999999999999999999, or leave blank for random."
+    fi
+done
+# === SEED ===
+while true; do
+    read -p "Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
+    MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
+    if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
+       awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
+        log "Seed chosen: $MC_SEED"
+        break        
+    else
+        log "Invalid Seed chosen: $MC_SEED"
+        echo "Invalid Seed. Please enter a number between 0 and 9999999999999999999."
     fi
 done
 
@@ -320,24 +334,35 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
     
     while true; do
+
+    # Add this right after the read command:
         read -s -p "Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
         echo
+        echo "DEBUG: Auth key length: ${#TS_AUTHKEY}"  # Shows length without revealing key
+        
+        # Add error checking around the Docker command:
+        log "INFO" "Validating Tailscale Auth Key..."
+        show_progress "Validating key with Tailscale"
+        
         if [ -z "$TS_AUTHKEY" ]; then
             echo "Auth Key cannot be empty."
             continue
         fi
-
-        log "INFO" "Validating Tailscale Auth Key..."
-        show_progress "Validating key with Tailscale"
-
+        
+        set +e  # Don't exit on error temporarily
         VALIDATION_OUTPUT=$(docker run --rm --privileged \
             --cap-add=NET_ADMIN \
             --device /dev/net/tun \
             -e TS_AUTHKEY="$TS_AUTHKEY" \
             -e TS_STATE_DIR="/tmp/state" \
             tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1)
+        DOCKER_EXIT_CODE=$?
+        set -e  # Re-enable exit on error
+        
+        echo "DEBUG: Docker exit code: $DOCKER_EXIT_CODE"
+        echo "DEBUG: Validation output: $VALIDATION_OUTPUT"
 
-        if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
+        elif echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
             log "INFO" "Auth Key is valid."
             echo "Auth Key is valid."
 
