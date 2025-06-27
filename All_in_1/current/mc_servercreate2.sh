@@ -313,7 +313,7 @@ while true; do
     read -p "Enter desired seed [${DEFAULT_SEED}]: " MC_SEED
     MC_SEED="${MC_SEED:-$DEFAULT_SEED}"
     if [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
-       awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
+        awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
         log "Seed chosen: $MC_SEED"
         break        
     else
@@ -334,43 +334,39 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
     
     while true; do
-
-    # Add this right after the read command:
         read -s -p "Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
-        echo
         echo "DEBUG: Auth key length: ${#TS_AUTHKEY}"  # Shows length without revealing key
-        
-        # Add error checking around the Docker command:
-        log "INFO" "Validating Tailscale Auth Key..."
-        show_progress "Validating key with Tailscale"
-        
         if [ -z "$TS_AUTHKEY" ]; then
             echo "Auth Key cannot be empty."
             continue
         fi
-        
         set +e  # Don't exit on error temporarily
+        log "INFO" "Validating Tailscale Auth Key..."
+        show_progress "Validating key with Tailscale"
+        
+        # Capture all output (stdout and stderr) into a variable
         VALIDATION_OUTPUT=$(docker run --rm --privileged \
             --cap-add=NET_ADMIN \
             --device /dev/net/tun \
             -e TS_AUTHKEY="$TS_AUTHKEY" \
             -e TS_STATE_DIR="/tmp/state" \
             tailscale/tailscale tailscale up --authkey="$TS_AUTHKEY" --ephemeral 2>&1)
-        DOCKER_EXIT_CODE=$?
+            
         set -e  # Re-enable exit on error
-        
         echo "DEBUG: Docker exit code: $DOCKER_EXIT_CODE"
         echo "DEBUG: Validation output: $VALIDATION_OUTPUT"
-
-        elif echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
+        # Check the output for the success message
+        if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
             log "INFO" "Auth Key is valid."
-            echo "Auth Key is valid."
-
+            echo "✓ Auth Key is valid."
+        
+            # Create .env file for security with restricted permissions
             echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
             chmod 600 "${SERVER_DIR}/.env"
             log "INFO" "Created .env file with secure permissions."
-            echo "Created .env file for secure key storage."
-
+            echo "✓ Created .env file for secure key storage."
+        
+            # Create .gitignore file
             cat > "${SERVER_DIR}/.gitignore" <<EOF
 # Ignore sensitive environment variables
 .env
@@ -386,8 +382,15 @@ EOF
             log "INFO" "Created .gitignore file."
             break
         else
-            log "ERROR" "Invalid Tailscale Auth Key."
-            echo "Invalid Auth Key. Please try again."
+            log "ERROR" "Invalid Auth Key or Docker error occurred."
+            echo "✗ Validation failed. Please check the key and try again."
+        
+            # Provide more specific feedback if possible
+            if echo "$VALIDATION_OUTPUT" | grep -q "Cannot connect to the Docker daemon"; then
+                log "ERROR" "Docker daemon not running."
+                echo "Error: Could not connect to Docker. Is the Docker daemon running?"
+            fi
+            unset TS_AUTHKEY
         fi
     done
 fi
