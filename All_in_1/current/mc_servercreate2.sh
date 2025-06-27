@@ -299,8 +299,8 @@ while true; do
     if [[ -z "$MC_SEED" ]]; then
         log "INFO" "Random seed will be used"
         break
-    eliif [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
-       awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
+    elif [[ "$MC_SEED" =~ ^[0-9]+$ ]] && \
+        awk -v n="$MC_SEED" 'BEGIN { exit !(n >= 0 && n <= 9999999999999999999) }'; then
         log "Seed chosen: $MC_SEED"
         break      
     else
