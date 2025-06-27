@@ -434,7 +434,6 @@ fi
 
 # Create the docker-compose.yml file
 cat > docker-compose.yml <<EOF
-version: '3.8'
 services:
   minecraft:
     image: ${IMAGE}
@@ -450,11 +449,11 @@ fi
 
 cat >> docker-compose.yml <<EOF
     ports:
-      - \"${MC_JPORT}:${MC_JPORT}\"
+      - \"${MC_JPORT}:${MC_JPORT}"
 EOF
 
 if [ "$USE_GEYSER" == "yes" ]; then
-  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
+  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp"" >> docker-compose.yml
 fi
 
 cat >> docker-compose.yml <<EOF
@@ -500,7 +499,7 @@ cat >> docker-compose.yml <<EOF
 EOF
 fi
 
-echo "✓ docker-compose.yml created successfully!"
+echo "docker-compose.yml created successfully!"
 log "INFO" "docker-compose.yml created in: $SERVER_DIR"
 
 echo ""
@@ -513,7 +512,7 @@ echo "   docker compose up -d"
 LAUNCH_NOW=$(prompt_yes_no "Would you like to start the server now? (y/n) [y]: " "y")
 
 if [ "$LAUNCH_NOW" == "no" ]; then
-    echo "✓ All set! You can start your server later using the commands above."
+    echo "All set! You can start your server later using the commands above."
     log "INFO" "Docker container will be launched manually"
     exit 0
 fi
@@ -521,7 +520,7 @@ fi
 # Start the Docker Container
 show_progress "Starting the server in the background"
 if ! (cd "$SERVER_DIR" && docker compose up -d); then
-    echo "✗ Docker Compose failed to start. Check logs with: docker logs ${SERVER_NAME}"
+    echo "Docker Compose failed to start. Check logs with: docker logs ${SERVER_NAME}"
     log "ERROR" "Docker Compose failed to start"
     exit 1
 fi
@@ -529,7 +528,7 @@ fi
 # Connection information
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo ""
-    echo "🌐 Tailscale is enabled. Your server will be available on your Tailnet."
+    echo "   Tailscale is enabled. Your server will be available on your Tailnet."
     echo "   Check your Tailscale admin console: https://login.tailscale.com/admin/machines"
     echo "   Look for the machine named '${SERVER_NAME}'"
     echo "   Connect using its Tailscale IP or hostname in Minecraft."
@@ -568,7 +567,7 @@ while ! docker logs "$SERVER_NAME" 2>&1 | grep -q "Server marked as running"; do
 done
 
 echo ""
-echo "✅ Server has initialized successfully!"
+echo "Server has initialized successfully!"
 log "INFO" "Server has initialized successfully."
 
 # Configure Geyser with improved timing
@@ -584,7 +583,7 @@ if [ "$USE_GEYSER" == "yes" ]; then
     GEYSER_CONFIG_PATH=$(find "$PLUGINS_DIR" -type f -name "config.yml" -path "*/Geyser-*/config.yml" 2>/dev/null | head -n 1)
 
     if [ -f "$GEYSER_CONFIG_PATH" ]; then
-        echo "✓ Found Geyser config at: $GEYSER_CONFIG_PATH"
+        echo "Found Geyser config at: $GEYSER_CONFIG_PATH"
         log "INFO" "Found Geyser config at: $GEYSER_CONFIG_PATH"
         
         CONFIRM_SED=$(prompt_yes_no "Apply Bedrock port configuration to Geyser? (y/n) [y]: " "y")
@@ -597,17 +596,17 @@ if [ "$USE_GEYSER" == "yes" ]; then
             }" "$GEYSER_CONFIG_PATH"
             
             log "INFO" "Updated Bedrock port to ${MC_BPORT}."
-            echo "✓ Updated Bedrock port to ${MC_BPORT}."
+            echo "Updated Bedrock port to ${MC_BPORT}."
 
             show_progress "Restarting container to apply new settings"
             (cd "$SERVER_DIR" && docker compose restart minecraft)
-            echo "✅ Geyser configuration complete!"
+            echo "Geyser configuration complete!"
         else
-            echo "⚠ Configuration skipped. Update port manually to ${MC_BPORT} if needed."
+            echo "Configuration skipped. Update port manually to ${MC_BPORT} if needed."
             log "WARN" "Geyser configuration skipped by user."
         fi
     else
-        echo "⚠ Could not find Geyser config.yml."
+        echo "   Could not find Geyser config.yml."
         echo "   The server may need more time, or Geyser may not be installed correctly."
         echo "   You may need to set the Bedrock port to ${MC_BPORT} manually."
         log "WARN" "Could not find Geyser config, port to be set manually later"
