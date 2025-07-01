@@ -407,27 +407,25 @@ fi
 cd "$SERVER_DIR" || exit 1
 
 # === 6. Generate docker-compose.yml ===
-
 log "INFO" "Generating docker-compose file in $SERVER_DIR"
 
 # Initialize variables
 IMAGE="$DEFAULT_IMAGE"
 MOD_ENV_BLOCK=""
+COMPOSE_FILE="${SERVER_DIR}/docker-compose.yml"
 
 # Check if the server type is Fabric to add mods
 if [ "$SERVER_TYPE" == "fabric" ]; then
     MODS_LIST="fabric-api"
-
     if [ "$USE_GEYSER" == "yes" ]; then
         MODS_LIST="${MODS_LIST},geyser-fabric"
         log "INFO" "Mods added: $MODS_LIST"
     fi
-    
     MOD_ENV_BLOCK="      MODRINTH_PROJECTS: \"${MODS_LIST}\""
 fi
 
-# Create the docker-compose.yml file
-cat > docker-compose.yml <<EOF
+# Create the docker-compose.yml file with error handling
+if ! cat > "$COMPOSE_FILE" <<EOF
 services:
   minecraft:
     image: ${IMAGE}
@@ -436,21 +434,29 @@ services:
     tty: true
     stdin_open: true
 EOF
-
-if [ "$ENABLE_TAILSCALE" == "yes" ]; then
-  echo "    network_mode: \"service:tailscale-sidecar\"" >> docker-compose.yml
+then
+    log "ERROR" "Failed to create docker-compose.yml"
+    exit 1
 fi
 
-cat >> docker-compose.yml <<EOF
+# Add network mode for Tailscale
+if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+    echo "    network_mode: \"service:tailscale-sidecar\"" >> "$COMPOSE_FILE"
+fi
+
+# Add ports only if NOT using Tailscale (since sidecar handles networking)
+if [ "$ENABLE_TAILSCALE" != "yes" ]; then
+    cat >> "$COMPOSE_FILE" <<EOF
     ports:
       - "${MC_JPORT}:${MC_JPORT}"
 EOF
-
-if [ "$USE_GEYSER" == "yes" ]; then
-  echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> docker-compose.yml
+    if [ "$USE_GEYSER" == "yes" ]; then
+        echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> "$COMPOSE_FILE"
+    fi
 fi
 
-cat >> docker-compose.yml <<EOF
+# Add environment variables
+cat >> "$COMPOSE_FILE" <<EOF
     environment:
       EULA: "TRUE"
       VERSION: "${MC_VERSION}"
@@ -464,21 +470,27 @@ cat >> docker-compose.yml <<EOF
 EOF
 
 # Only add SEED if it's not empty
-if [ "$MC_SEED" != "" ]; then
-  echo "      SEED: \"${MC_SEED}\"" >> docker-compose.yml
+if [ -n "$MC_SEED" ]; then
+    echo "      SEED: \"${MC_SEED}\"" >> "$COMPOSE_FILE"
 fi
 
-[ -n "$MOD_ENV_BLOCK" ] && echo "$MOD_ENV_BLOCK" >> docker-compose.yml
+# Add mod environment block if present
+if [ -n "$MOD_ENV_BLOCK" ]; then
+    echo "$MOD_ENV_BLOCK" >> "$COMPOSE_FILE"
+fi
 
-cat >> docker-compose.yml <<EOF
+# Add volumes
+cat >> "$COMPOSE_FILE" <<EOF
     volumes:
-      - ${SERVER_DIR}:/data
+      - ${SERVER_DIR}/data:/data
 EOF
 
-# Append Tailscale service if needed
+# Add Tailscale service if enabled
 if [ "$ENABLE_TAILSCALE" == "yes" ]; then
-cat >> docker-compose.yml <<EOF
-
+    # Create tailscale state directory
+    mkdir -p "${SERVER_DIR}/tailscale-state"
+    
+    cat >> "$COMPOSE_FILE" <<EOF
   tailscale-sidecar:
     image: tailscale/tailscale:latest
     hostname: ${SERVER_NAME}
@@ -489,22 +501,37 @@ cat >> docker-compose.yml <<EOF
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
     volumes:
-      - ./tailscale-state:/var/lib/tailscale
+      - ${SERVER_DIR}/tailscale-state:/var/lib/tailscale
     devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - net_admin
     restart: unless-stopped
+    ports:
+      - "${MC_JPORT}:${MC_JPORT}"
 EOF
+    if [ "$USE_GEYSER" == "yes" ]; then
+        echo "      - \"${MC_BPORT}:${MC_BPORT}/udp\"" >> "$COMPOSE_FILE"
+    fi
 fi
 
-echo "docker-compose.yml created successfully!"
-log "INFO" "docker-compose.yml created in: $SERVER_DIR"
+# Verify file was created successfully
+if [ -f "$COMPOSE_FILE" ]; then
+    echo "✓ docker-compose.yml created successfully!"
+    log "INFO" "docker-compose.yml created in: $SERVER_DIR"
+else
+    log "ERROR" "Failed to create docker-compose.yml"
+    exit 1
+fi
 
 echo ""
-echo "To manually start your server later, run these commands:"
+echo "To start your server, run these commands:"
 echo "   cd $SERVER_DIR"
-echo "   docker compose up -d"
+if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+    echo "   docker compose --env-file .env up -d"
+else
+    echo "   docker compose up -d"
+fi
 
 # === 7. Launch & Final Configuration ===
 
