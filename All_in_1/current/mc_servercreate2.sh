@@ -545,10 +545,22 @@ fi
 
 # Start the Docker Container
 show_progress "Starting the server in the background"
-if ! (cd "$SERVER_DIR" && docker compose up -d); then
-    echo "Docker Compose failed to start. Check logs with: docker logs ${SERVER_NAME}"
-    log "ERROR" "Docker Compose failed to start"
-    exit 1
+
+# Use the appropriate docker compose command based on Tailscale configuration
+if [ "$ENABLE_TAILSCALE" == "yes" ]; then
+    log "INFO" "Starting with Tailscale configuration (using .env file)"
+    if ! (cd "$SERVER_DIR" && docker compose --env-file .env up -d); then
+        echo "Docker Compose failed to start. Check logs with: docker logs ${SERVER_NAME}"
+        log "ERROR" "Docker Compose failed to start with Tailscale configuration"
+        exit 1
+    fi
+else
+    log "INFO" "Starting without Tailscale"
+    if ! (cd "$SERVER_DIR" && docker compose up -d); then
+        echo "Docker Compose failed to start. Check logs with: docker logs ${SERVER_NAME}"
+        log "ERROR" "Docker Compose failed to start"
+        exit 1
+    fi
 fi
 
 # Connection information
