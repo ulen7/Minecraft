@@ -320,47 +320,55 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
     echo "Visit: https://tailscale.com/kb/1085/auth-keys"
     echo "It is recommended to use an Ephemeral, Pre-authorized, and Tagged key."
     
+    # Ensure directory exists
+    if [ ! -d "$SERVER_DIR" ]; then
+        mkdir -p "$SERVER_DIR" || { log "ERROR" "Failed to create directory: $SERVER_DIR"; exit 1; }
+    fi
+    
     while true; do
         read -s -p "Enter your Tailscale Auth Key (will not be displayed): " TS_AUTHKEY
-        echo "DEBUG: Auth key length: ${#TS_AUTHKEY}"  # Shows length without revealing key
+        echo
         if [ -z "$TS_AUTHKEY" ]; then
-            echo "Auth Key cannot be empty."
+            echo "❌ Auth Key cannot be empty."
             continue
         fi
         
-        log "INFO" "Validating Tailscale Auth Key..."
-        show_progress "Validating key with Tailscale"
+        log "INFO" "Validating Tailscale Auth Key format..."
+        show_progress "Validating key format"
         
-        # Just validate the format and skip the Docker test
-        if [[ ! "$TS_AUTHKEY" =~ ^tskey-auth-[a-zA-Z0-9]+-[a-zA-Z0-9]+$ ]]; then
-            echo "Invalid Auth Key format. Please check your key."
+        if [[ ! "$TS_AUTHKEY" =~ ^tskey-auth-[a-zA-Z0-9_-]+$ ]]; then
+            echo "❌ Invalid Auth Key format. Please check your key."
+            log "WARN" "Auth Key format is invalid (length: ${#TS_AUTHKEY})"
             continue
         fi
-        log "INFO" "Auth Key format is valid."
         
-        # Check the output for the success message
-        else         
-            # Create .env file for security with restricted permissions
-            echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
-            chmod 600 "${SERVER_DIR}/.env"
-            log "INFO" "Created .env file with secure permissions."
+        # Create .env file with error checking
+        if echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env" && chmod 600 "${SERVER_DIR}/.env"; then
+            log "INFO" "Auth Key validated and saved securely."
             echo "✓ Created .env file for secure key storage."
+        else
+            log "ERROR" "Failed to create .env file"
+            echo "❌ Failed to create .env file"
+            exit 1
+        fi
         
-            # Create .gitignore file
-            cat > "${SERVER_DIR}/.gitignore" <<EOF
+        # Create .gitignore file with error checking
+        if cat > "${SERVER_DIR}/.gitignore" <<EOF
 # Ignore sensitive environment variables
 .env
-
 # Ignore log files and state directories
 *.log
 tailscale-state/
-
 # Ignore backups
 backups/
 *.tar.gz
 EOF
+        then
             log "INFO" "Created .gitignore file."
-            break
+        else
+            log "WARN" "Failed to create .gitignore file"
+        fi
+        break
     done
 fi
 
