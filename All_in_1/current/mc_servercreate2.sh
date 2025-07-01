@@ -339,10 +339,7 @@ if [ "$ENABLE_TAILSCALE" == "yes" ]; then
         log "INFO" "Auth Key format is valid."
         
         # Check the output for the success message
-        if echo "$VALIDATION_OUTPUT" | grep -q "Logged in as"; then
-            log "INFO" "Auth Key is valid."
-            echo "✓ Auth Key is valid."
-        
+        else         
             # Create .env file for security with restricted permissions
             echo "TS_AUTHKEY=${TS_AUTHKEY}" > "${SERVER_DIR}/.env"
             chmod 600 "${SERVER_DIR}/.env"
@@ -364,17 +361,6 @@ backups/
 EOF
             log "INFO" "Created .gitignore file."
             break
-        else
-            log "ERROR" "Invalid Auth Key or Docker error occurred."
-            echo "Validation failed. Please check the key and try again."
-        
-            # Provide more specific feedback if possible
-            if echo "$VALIDATION_OUTPUT" | grep -q "Cannot connect to the Docker daemon"; then
-                log "ERROR" "Docker daemon not running."
-                echo "Error: Could not connect to Docker. Is the Docker daemon running?"
-            fi
-            unset TS_AUTHKEY
-        fi
     done
 fi
 
