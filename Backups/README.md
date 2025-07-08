@@ -219,7 +219,7 @@ rclone copy ~/test.txt gdrive:/my-folder
 WORLD_NAME="mc_servername"
 WORLD_DIR="/home/server_name/minecraft_servers/New/$WORLD_NAME"
 BACKUP_DIR="/home/server_name/minecraft_backups/$WORLD_NAME"
-TIMESTAMP=$(date +'%Y-%m-%d')
+TIMESTAMP=$(date +'%Y-%m-%d_%H-%M')
 BACKUP_NAME="${WORLD_NAME}_$TIMESTAMP.tar.gz"
 REMOTE_NAME="gdrive"
 REMOTE_PATH="minecraft_backups/$WORLD_NAME"
