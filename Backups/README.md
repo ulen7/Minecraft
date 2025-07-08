@@ -357,7 +357,7 @@ You can check this log to confirm backups ran successfully.
 
 
 ```cron
-0 3 * * 0 TZ=America/Toronto /home/server_name/scripts/mc_backup.sh >> /home/server_name/scripts/mc_backup.log 2>&1
+0 3 * * 0 /home/server_name/scripts/mc_backup.sh >> /home/server_name/scripts/mc_backup.log 2>&1
 ```
 
 ---
